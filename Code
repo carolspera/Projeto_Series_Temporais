@@ -92,7 +92,3 @@ server <- function(input, output) { }
 ####### Rodando Shiny ################################################################### 
 
 shinyApp(ui, server)
-#Adicionando o app em https://www.shinyapps.io/
-#library(rsconnect)
-#rsconnect::deployApp()
-#https://carolsb.shinyapps.io/projetoVED/
