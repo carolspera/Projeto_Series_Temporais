@@ -16,9 +16,17 @@ library(RColorBrewer)
 library(plotly)
 library(geojsonio)
 library(shinyWidgets)
+library(stringr)
 
-# df <- read.csv("/home/carol/Documents/Code/R code/Séries Temporais/Projeto_Series_Temporais/INMET/A001.csv", header = TRUE)
-# var <- colnames(df)
+df <- read.csv("A001.csv", header = TRUE)
+var <- colnames(df)
+
+cidades <- read.csv("CatalogoEstaçõesAutomáticas.csv", sep=";", header = TRUE)
+
+# Criando uma coluna com o nome da cidade e estado
+cidades_mod <- data.frame(coluna1 = cidades$DC_NOME,coluna2 = cidades$SG_ESTADO)
+cidades_mod$coluna1 <- str_to_title(tolower(cidades_mod$coluna1))
+cidades_mod$Cidade_Estado <- paste(cidades_mod$coluna1, cidades_mod$coluna2, sep = "-")
 
 
 ### SHINY UI ###
@@ -38,7 +46,7 @@ ui <- bootstrapPage(
                           
                           absolutePanel(id = "controls", class = "panel panel-default",
                                         top = 500, left = 55, width = 1200, fixed=TRUE,
-                                        draggable = FALSE, height = "auto",
+                                        draggable = F, height = "auto",
                                         
                                         h3("Previsão diária"),
 
@@ -62,17 +70,7 @@ ui <- bootstrapPage(
                                                                        "Lufada - Rajada de vento (Wind gust) (m/s)",
                                                                        "Radiação solar (MJ/m²)")),
                                         
-                                        selectInput("est",
-                                                    "Est:",
-                                                    label = h4("Selecione a estação meteorológica:"),
-                                                    choices = c("A001: Brasília-DF",
-                                                                "A002: Goiânia-GO",
-                                                                "A003: Morrinhos-GO",
-                                                                "A005: Porangatu-GO",
-                                                                "A009: Palmas-TO",
-                                                                "A010: Parana-TO",
-                                                                "A011: São Simão-GO",
-                                                                "A020: Pedro Afonso-TO")),
+                                        selectInput("est", "Escolha a(s) estação(ões) meteorológica(s)", cidades_mod$Cidade_Estado, multiple = TRUE),
                                         
                                         selectInput("ano",
                                                     "Ano:",
@@ -87,7 +85,13 @@ ui <- bootstrapPage(
                                                                 "2015",
                                                                 "2014",
                                                                 "2013",
-                                                                "2012"))
+                                                                "2012")),
+                                       
+                          #               plotOutput("histCentile", height = 200),
+                          #               plotOutput("scatterCollegeIncome", height = 250)
+                          # ),
+                                        tags$div(id="cite",
+                                                  h6('Dados retirados do portal INMET.'))
            
                           ))
 
@@ -101,7 +105,7 @@ ui <- bootstrapPage(
                           
                           absolutePanel(id = "controls", class = "panel panel-default",
                                         top = 500, left = 55, width = 1200, fixed=TRUE,
-                                        draggable = FALSE, height = "auto",
+                                        draggable = F, height = "auto",
                                         
                                         h3("Previsão de longo prazo"),
                                         
@@ -125,17 +129,7 @@ ui <- bootstrapPage(
                                                                 "Lufada - Rajada de vento (Wind gust) (m/s)",
                                                                 "Radiação solar (MJ/m²)")),
                                         
-                                        selectInput("est",
-                                                    "Est:",
-                                                    label = h4("Selecione a estação meteorológica:"),
-                                                    choices = c("A001: Brasília-DF",
-                                                                "A002: Goiânia-GO",
-                                                                "A003: Morrinhos-GO",
-                                                                "A005: Porangatu-GO",
-                                                                "A009: Palmas-TO",
-                                                                "A010: Parana-TO",
-                                                                "A011: São Simão-GO",
-                                                                "A020: Pedro Afonso-TO")),
+                                        selectInput("est", "Escolha a(s) estação(ões) meteorológica(s)", cidades_mod$Cidade_Estado, multiple = TRUE),
                                         
                                         selectInput("ano",
                                                     "Ano:",
@@ -150,7 +144,9 @@ ui <- bootstrapPage(
                                                                 "2015",
                                                                 "2014",
                                                                 "2013",
-                                                                "2012"))
+                                                                "2012")),
+                                        tags$div(id="cite",
+                                                 h6('Dados retirados do portal INMET.'))
                                         
                           ))
              ),
@@ -194,7 +190,7 @@ ui <- bootstrapPage(
              ),
              
              ## Modelos ##
-             tabPanel("Modelos"
+             tabPanel("Modelagem preditiva"
                       ,
 
                       sidebarLayout(
@@ -272,7 +268,7 @@ ui <- bootstrapPage(
                         # tags$br(),tags$br(),tags$h4("Contact"),
                         # "https://www.icmc.usp.br/",tags$br(),tags$br(),
                         tags$img(src = "usp-university-of-sao-paulo7715.jpg", width = "120px", height = "65px"), tags$img(src = "logo-icmc.png", width = "120px", height = "65px")
-                      ))))        
+                      ))))   
 
 
 
@@ -281,6 +277,19 @@ ui <- bootstrapPage(
 
 server = function(input, output, session) {
   
+  # #Gráficos de linhas
+  # {
+  #   output$graph<- renderPlotly({
+      # pais <- input$pais
+      # data_c = data1 %>% filter(name_long %in% pais)
+      # x <- list(title = "Ano")
+      # y <- list(title = "Expectativa de vida")
+      # plot_ly(data_c, x = ~Year, y = ~Life.expectancy, color = ~name_long, type = 'scatter', mode = 'lines') %>% 
+      #   add_markers() %>%
+      #   layout(xaxis = x, yaxis = y, width = 700, height = 500)
+  #   })
+  # }
+  # 
   # # covid tab 
   # formatted_date = reactive({
   #   format(as.Date(input$plot_date, format="%d %b %y"), "%Y-%m-%d")
