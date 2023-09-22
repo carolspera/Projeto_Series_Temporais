@@ -38,7 +38,7 @@ ui <- bootstrapPage(
                           
                           absolutePanel(id = "controls", class = "panel panel-default",
                                         top = 500, left = 55, width = 1200, fixed=TRUE,
-                                        draggable = TRUE, height = "auto",
+                                        draggable = FALSE, height = "auto",
                                         
                                         h3("Previsão diária"),
 
@@ -67,14 +67,27 @@ ui <- bootstrapPage(
                                                     label = h4("Selecione a estação meteorológica:"),
                                                     choices = c("A001: Brasília-DF",
                                                                 "A002: Goiânia-GO",
-                                                                "A009: Palmas-TO")),
+                                                                "A003: Morrinhos-GO",
+                                                                "A005: Porangatu-GO",
+                                                                "A009: Palmas-TO",
+                                                                "A010: Parana-TO",
+                                                                "A011: São Simão-GO",
+                                                                "A020: Pedro Afonso-TO")),
                                         
                                         selectInput("ano",
                                                     "Ano:",
                                                     label = h4("Selecione o ano:"),
                                                     choices = c("2022",
                                                                 "2021",
-                                                                "2020"))
+                                                                "2020",
+                                                                "2019",
+                                                                "2018",
+                                                                "2017",
+                                                                "2016",
+                                                                "2015",
+                                                                "2014",
+                                                                "2013",
+                                                                "2012"))
            
                           ))
 
@@ -88,7 +101,7 @@ ui <- bootstrapPage(
                           
                           absolutePanel(id = "controls", class = "panel panel-default",
                                         top = 500, left = 55, width = 1200, fixed=TRUE,
-                                        draggable = TRUE, height = "auto",
+                                        draggable = FALSE, height = "auto",
                                         
                                         h3("Previsão de longo prazo"),
                                         
@@ -117,14 +130,27 @@ ui <- bootstrapPage(
                                                     label = h4("Selecione a estação meteorológica:"),
                                                     choices = c("A001: Brasília-DF",
                                                                 "A002: Goiânia-GO",
-                                                                "A009: Palmas-TO")),
+                                                                "A003: Morrinhos-GO",
+                                                                "A005: Porangatu-GO",
+                                                                "A009: Palmas-TO",
+                                                                "A010: Parana-TO",
+                                                                "A011: São Simão-GO",
+                                                                "A020: Pedro Afonso-TO")),
                                         
                                         selectInput("ano",
                                                     "Ano:",
                                                     label = h4("Selecione o ano:"),
                                                     choices = c("2022",
                                                                 "2021",
-                                                                "2020"))
+                                                                "2020",
+                                                                "2019",
+                                                                "2018",
+                                                                "2017",
+                                                                "2016",
+                                                                "2015",
+                                                                "2014",
+                                                                "2013",
+                                                                "2012"))
                                         
                           ))
              ),
