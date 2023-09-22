@@ -258,13 +258,70 @@ server = function(input, output, session) {
     })
   }
  
-
-  # output$mymap <- renderLeaflet({
+  
+  
+  # covid tab 
+  # formatted_date = reactive({
+  #   format(as.Date(input$plot_date, format="%d %b %y"), "%Y-%m-%d")
+  # })
+  # 
+  # output$clean_date_reactive <- renderText({
+  #   format(as.POSIXct(formatted_date()),"%d %B %Y")
+  # })
+  # 
+  # reactive_db = reactive({
+  #   cv_cases %>% filter(date == formatted_date())
+  # })
+  # 
+  # reactive_db_last7d = reactive({
+  #   cv_cases %>% filter(date == formatted_date() & new_cases>0)
+  # })
+  # 
+  # reactive_db_large = reactive({
+  #   large_countries = reactive_db() %>% filter(alpha3 %in% worldcountry$ADM0_A3)
+  #   #large_countries = reactive %>% filter(alpha3 %in% worldcountry$ADM0_A3)
+  #   worldcountry_subset = worldcountry[worldcountry$ADM0_A3 %in% large_countries$alpha3, ]
+  #   large_countries = large_countries[match(worldcountry_subset$ADM0_A3, large_countries$alpha3),]
+  #   large_countries
+  # })
+  # 
+  # reactive_db_large_last7d = reactive({
+  #   large_countries = reactive_db_last7d() %>% filter(alpha3 %in% worldcountry$ADM0_A3)
+  #   large_countries = large_countries[order(large_countries$alpha3),]
+  #   large_countries
+  # })
+  # 
+  # reactive_polygons = reactive({
+  #   worldcountry[worldcountry$ADM0_A3 %in% reactive_db_large()$alpha3, ]
+  # })
+  # 
+  # reactive_polygons_last7d = reactive({
+  #   worldcountry[worldcountry$ADM0_A3 %in% reactive_db_large_last7d()$alpha3, ]
+  # })
+  # 
+  # output$reactive_case_count <- renderText({
+  #   paste0(prettyNum(sum(reactive_db()$cases), big.mark=","), " cases")
+  # })
+  # 
+  # output$reactive_death_count <- renderText({
+  #   paste0(prettyNum(sum(reactive_db()$deaths), big.mark=","), " deaths")
+  # })
+  # 
+  # output$reactive_country_count <- renderText({
+  #   paste0(nrow(subset(reactive_db(), country!="Diamond Princess Cruise Ship")), " countries/regions affected")
+  # })
+  # 
+  # output$reactive_new_cases_7d <- renderText({
+  #   paste0(round((cv_aggregated %>% filter(date == formatted_date() & region=="Global"))$new/7,0), " 7-day average")
+  # })
+  
+  ## Análise geográfica
+  # output$map <- renderLeaflet({
   #   basemap
   # })
   # 
   # observeEvent(input$plot_date, {
-  #   leafletProxy("mymap") %>% 
+  #   leafletProxy("map") %>% 
   #     clearMarkers() %>%
   #     clearShapes() %>%
   #     
