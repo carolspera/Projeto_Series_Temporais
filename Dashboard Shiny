@@ -17,191 +17,119 @@ library(plotly)
 library(geojsonio)
 library(shinyWidgets)
 
-# load required packages
-# if(!require(magrittr)) install.packages("magrittr", repos = "http://cran.us.r-project.org")
-# if(!require(rvest)) install.packages("rvest", repos = "http://cran.us.r-project.org")
-# if(!require(readxl)) install.packages("readxl", repos = "http://cran.us.r-project.org")
-#if(!require(dplyr)) install.packages("dplyr", repos = "http://cran.us.r-project.org")
-# if(!require(maps)) install.packages("maps", repos = "http://cran.us.r-project.org")
-# if(!require(ggplot2)) install.packages("ggplot2", repos = "http://cran.us.r-project.org")
-# if(!require(reshape2)) install.packages("reshape2", repos = "http://cran.us.r-project.org")
-# if(!require(ggiraph)) install.packages("ggiraph", repos = "http://cran.us.r-project.org")
-# if(!require(RColorBrewer)) install.packages("RColorBrewer", repos = "http://cran.us.r-project.org")
-#if(!require(leaflet)) install.packages("leaflet", repos = "http://cran.us.r-project.org")
-# if(!require(plotly)) install.packages("plotly", repos = "http://cran.us.r-project.org")
-# if(!require(geojsonio)) install.packages("geojsonio", repos = "http://cran.us.r-project.org")
-#if(!require(shiny)) install.packages("shiny", repos = "http://cran.us.r-project.org")
-# if(!require(shinyWidgets)) install.packages("shinyWidgets", repos = "http://cran.us.r-project.org")
-#if(!require(shinydashboard)) install.packages("shinydashboard", repos = "http://cran.us.r-project.org")
-#if(!require(shinythemes)) install.packages("shinythemes", repos = "http://cran.us.r-project.org")
-
-
+# df <- read.csv("/home/carol/Documents/Code/R code/Séries Temporais/Projeto_Series_Temporais/INMET/A001.csv", header = TRUE)
+# var <- colnames(df)
 
 
 ### SHINY UI ###
+
 ui <- bootstrapPage(
   tags$head(includeHTML("gtag.html")),
-  navbarPage(theme = shinytheme("darkly"), collapsible = TRUE,
+  navbarPage(theme = shinytheme("flatly"), collapsible = TRUE,
              HTML('<a style="text-decoration:none;cursor:default;color:#FFFFFF;" class="active" href="#">Dados Meteorológicos INMET</a>'), id="nav",
+             # tags$style(HTML('#input_date_control {background-color: rgba(0,0,200,0.05);;} #sel_date {background-color: rgba(0,0,255,1);}')),
              windowTitle = "Meteorologia INMET",
              
+             ## Previsão Diária ##
              tabPanel("Previsão diária",
                       div(class="outer",
                           tags$head(includeCSS("styles.css")),
-                          leafletOutput("sars_map", width="100%", height="100%"),
+                          leafletOutput("map", width="100%", height="100%"),
                           
                           absolutePanel(id = "controls", class = "panel panel-default",
-                                        top = 600, left = 55, width = 900, fixed=TRUE,
+                                        top = 500, left = 55, width = 1200, fixed=TRUE,
                                         draggable = TRUE, height = "auto",
                                         
-                                        h3(textOutput("sars_reactive_case_count"), align = "right"),
-                                        h4(textOutput("sars_reactive_death_count"), align = "right"),
-                                        h6(textOutput("sars_clean_date_reactive"), align = "right"),
-                                        h6(textOutput("sars_reactive_country_count"), align = "right"),
-                                        plotOutput("sars_epi_curve", height="130px", width="100%"),
-                                        plotOutput("sars_cumulative_plot", height="130px", width="100%")
-                                        # span(("The final count appears to decrease as several cases initially classified as SARS were later re-assigned."),align = "left", style = "font-size:80%"),#tags$br(),
-                                        # span(("Circles show confirmed cases for COVID, SARS, and Ebola, and estimated deaths for H1N1."),align = "left", style = "font-size:80%")
-                                        # 
-                                        #                                         sliderTextInput("sars_plot_date",
-                                        #                                                         label = h5("Select mapping date"),
-                                        #                                                         choices = format(unique(sars_cases$date), "%d %b %y"),
-                                        #                                                         selected = format(sars_max_date, "%d %b %y"),
-                                        #                                                         grid = FALSE,
-                                        #                                                         animate=animationOptions(interval = 3000, loop = FALSE))
-                          ),
-                          
-                          # absolutePanel(id = "logo", class = "card", bottom = 15, left = 60, width = 80, fixed=TRUE, draggable = FALSE, height = "auto",
-                          #               tags$a(href='https://www.lshtm.ac.uk', tags$img(src='lshtm_dark.png',height='40',width='80'))),
-                          # 
-                          # absolutePanel(id = "logo", class = "card", bottom = 15, left = 20, width = 30, fixed=TRUE, draggable = FALSE, height = "auto",
-                          #               actionButton("twitter_share", label = "", icon = icon("twitter"),style='padding:5px',
-                          #                            onclick = sprintf("window.open('%s')",
-                          #                                              "https://twitter.com/intent/tweet?text=%20@LSHTM_Vaccines%20outbreak%20mapper&url=https://bit.ly/2uBvnds&hashtags=coronavirus")))
-                      )
+                                        h3("Previsão diária"),
 
-                      # ,
-                      # div(class="outer",
-                      #     tags$head(includeCSS("styles.css")),
-                      #     leafletOutput("mymap", width="100%", height="100%"),
-                      #     
-                      #     absolutePanel(id = "controls", class = "panel panel-default",
-                      #                   top = 75, left = 55, width = 250, fixed=TRUE,
-                      #                   draggable = TRUE, height = "auto",
-                      #                   
-                      #                   span(tags$i(h6("Reported cases are subject to significant variation in testing policy and capacity between countries.")), style="color:#045a8d"),
-                      #                   h3(textOutput("reactive_case_count"), align = "right"),
-                      #                   h4(textOutput("reactive_death_count"), align = "right"),
-                      #                   h6(textOutput("clean_date_reactive"), align = "right"),
-                      #                   h6(textOutput("reactive_country_count"), align = "right"),
-                      #                   plotOutput("epi_curve", height="130px", width="100%"),
-                      #                   plotOutput("cumulative_plot", height="130px", width="100%"),
-                      #                   
-                      #                   sliderTextInput("plot_date",
-                      #                                   label = h5("Select mapping date"),
-                      #                                   choices = format(unique(cv_cases$date), "%d %b %y"),
-                      #                                   selected = format(current_date, "%d %b %y"),
-                      #                                   grid = FALSE,
-                      #                                   animate=animationOptions(interval = 3000, loop = FALSE))
-                      #                   
-                      #     ),
-                      #     
-                      #     absolutePanel(id = "logo", class = "card", bottom = 20, left = 60, width = 80, fixed=TRUE, draggable = FALSE, height = "auto",
-                      #                   tags$a(href='https://www.lshtm.ac.uk', tags$img(src='lshtm_dark.png',height='40',width='80'))),
-                      #     
-                      #     absolutePanel(id = "logo", class = "card", bottom = 20, left = 20, width = 30, fixed=TRUE, draggable = FALSE, height = "auto",
-                      #                   actionButton("twitter_share", label = "", icon = icon("twitter"),style='padding:5px',
-                      #                                onclick = sprintf("window.open('%s')", 
-                      #                                                  "https://twitter.com/intent/tweet?text=%20@LSHTM_Vaccines%20outbreak%20mapper&url=https://bit.ly/2uBvnds&hashtags=coronavirus")))
-                      #     
-                      #     
-                      # )
+
+                                        selectInput("var",
+                                                      "Var:",
+                                                      label = h4("Selecione a variável:"),
+                                                           choices = c("Temperatura do ar média (°C)",
+                                                                       "Temperatura do ar mínima (°C)",
+                                                                       "Temperatura do ar máxima (°C)",
+                                                                       "Temperatura do ponto de orvalho média (°C)",
+                                                                       "Temperatura do ponto de orvalho mínima (°C)",
+                                                                       "Temperatura do ponto de orvalho máxima (°C)",
+                                                                       "Temperatura de bulbo seco (°C)",
+                                                                       "Precipitação total (mm)",
+                                                                       "Umidade relativa média (%)",
+                                                                       "Umidade relativa mínima (%)",
+                                                                       "Umidade relativa máxima (%)",
+                                                                       "Velocidade do vento a 10 metros de altura (m/s)",
+                                                                       "Velocidade do vento a 2 metros de altura (m/s)",
+                                                                       "Lufada - Rajada de vento (Wind gust) (m/s)",
+                                                                       "Radiação solar (MJ/m²)")),
+                                        
+                                        selectInput("est",
+                                                    "Est:",
+                                                    label = h4("Selecione a estação meteorológica:"),
+                                                    choices = c("A001: Brasília-DF",
+                                                                "A002: Goiânia-GO",
+                                                                "A009: Palmas-TO")),
+                                        
+                                        selectInput("ano",
+                                                    "Ano:",
+                                                    label = h4("Selecione o ano:"),
+                                                    choices = c("2022",
+                                                                "2021",
+                                                                "2020"))
+           
+                          ))
+
              ),
              
-             tabPanel("Previsão longo prazo",
+             ## Previsão de longo prazo ##
+             tabPanel("Previsão de longo prazo",
                       div(class="outer",
                           tags$head(includeCSS("styles.css")),
                           leafletOutput("sars_map", width="100%", height="100%"),
                           
                           absolutePanel(id = "controls", class = "panel panel-default",
-                                        top = 600, left = 55, width = 900, fixed=TRUE,
+                                        top = 500, left = 55, width = 1200, fixed=TRUE,
                                         draggable = TRUE, height = "auto",
                                         
-                                        h3(textOutput("sars_reactive_case_count"), align = "right"),
-                                        h4(textOutput("sars_reactive_death_count"), align = "right"),
-                                        h6(textOutput("sars_clean_date_reactive"), align = "right"),
-                                        h6(textOutput("sars_reactive_country_count"), align = "right"),
-                                        plotOutput("sars_epi_curve", height="130px", width="100%"),
-                                        plotOutput("sars_cumulative_plot", height="130px", width="100%")
-                                        # span(("The final count appears to decrease as several cases initially classified as SARS were later re-assigned."),align = "left", style = "font-size:80%"),#tags$br(),
-                                        # span(("Circles show confirmed cases for COVID, SARS, and Ebola, and estimated deaths for H1N1."),align = "left", style = "font-size:80%")
-                                        # 
-                                        #                                         sliderTextInput("sars_plot_date",
-                                        #                                                         label = h5("Select mapping date"),
-                                        #                                                         choices = format(unique(sars_cases$date), "%d %b %y"),
-                                        #                                                         selected = format(sars_max_date, "%d %b %y"),
-                                        #                                                         grid = FALSE,
-                                        #                                                         animate=animationOptions(interval = 3000, loop = FALSE))
-                          ),
-                          
-                          # absolutePanel(id = "logo", class = "card", bottom = 15, left = 60, width = 80, fixed=TRUE, draggable = FALSE, height = "auto",
-                          #               tags$a(href='https://www.lshtm.ac.uk', tags$img(src='lshtm_dark.png',height='40',width='80'))),
-                          # 
-                          # absolutePanel(id = "logo", class = "card", bottom = 15, left = 20, width = 30, fixed=TRUE, draggable = FALSE, height = "auto",
-                          #               actionButton("twitter_share", label = "", icon = icon("twitter"),style='padding:5px',
-                          #                            onclick = sprintf("window.open('%s')",
-                          #                                              "https://twitter.com/intent/tweet?text=%20@LSHTM_Vaccines%20outbreak%20mapper&url=https://bit.ly/2uBvnds&hashtags=coronavirus")))
-                      )
-
-                      # ,
-                      # sidebarLayout(
-                      #   sidebarPanel(
-                      #     
-                      #     span(tags$i(h6("Reported cases are subject to significant variation in testing policy and capacity between countries.")), style="color:#045a8d"),
-                      #     span(tags$i(h6("Occasional anomalies (e.g. spikes in daily case counts) are generally caused by changes in case definitions.")), style="color:#045a8d"),
-                      #     
-                      #     pickerInput("level_select", "Level:",   
-                      #                 choices = c("Global", "Continent", "Country", "US state"), 
-                      #                 selected = c("Country"),
-                      #                 multiple = FALSE),
-                      #     
-                      #     pickerInput("region_select", "Country/Region:",   
-                      #                 choices = as.character(cv_today_reduced[order(-cv_today_reduced$cases),]$country), 
-                      #                 options = list(`actions-box` = TRUE, `none-selected-text` = "Please make a selection!"),
-                      #                 selected = as.character(cv_today_reduced[order(-cv_today_reduced$cases),]$country)[1:10],
-                      #                 multiple = TRUE), 
-                      #     
-                      #     pickerInput("outcome_select", "Outcome:",   
-                      #                 choices = c("Deaths per million", "Cases per million", "Cases (total)", "Deaths (total)"), 
-                      #                 selected = c("Deaths per million"),
-                      #                 multiple = FALSE),
-                      #     
-                      #     pickerInput("start_date", "Plotting start date:",   
-                      #                 choices = c("Date", "Week of 100th confirmed case", "Week of 10th death"), 
-                      #                 options = list(`actions-box` = TRUE),
-                      #                 selected = "Date",
-                      #                 multiple = FALSE), 
-                      #     
-                      #     sliderInput("minimum_date",
-                      #                 "Minimum date:",
-                      #                 min = as.Date(cv_min_date,"%Y-%m-%d"),
-                      #                 max = as.Date(current_date,"%Y-%m-%d"),
-                      #                 value=as.Date(cv_min_date),
-                      #                 timeFormat="%d %b"),
-                      #     
-                      #     "Select outcome, regions, and plotting start date from drop-down menues to update plots. Countries with at least 1000 confirmed cases are included."
-                      #   ),
-                      #   
-                      #   mainPanel(
-                      #     tabsetPanel(
-                      #       tabPanel("Cumulative", plotlyOutput("country_plot_cumulative")),
-                      #       tabPanel("New", plotlyOutput("country_plot")),
-                      #       tabPanel("Cumulative (log10)", plotlyOutput("country_plot_cumulative_log"))
-                      #     )
-                      #   )
-                      # )
+                                        h3("Previsão de longo prazo"),
+                                        
+                                        
+                                        selectInput("var",
+                                                    "Var:",
+                                                    label = h4("Selecione a variável:"),
+                                                    choices = c("Temperatura do ar média (°C)",
+                                                                "Temperatura do ar mínima (°C)",
+                                                                "Temperatura do ar máxima (°C)",
+                                                                "Temperatura do ponto de orvalho média (°C)",
+                                                                "Temperatura do ponto de orvalho mínima (°C)",
+                                                                "Temperatura do ponto de orvalho máxima (°C)",
+                                                                "Temperatura de bulbo seco (°C)",
+                                                                "Precipitação total (mm)",
+                                                                "Umidade relativa média (%)",
+                                                                "Umidade relativa mínima (%)",
+                                                                "Umidade relativa máxima (%)",
+                                                                "Velocidade do vento a 10 metros de altura (m/s)",
+                                                                "Velocidade do vento a 2 metros de altura (m/s)",
+                                                                "Lufada - Rajada de vento (Wind gust) (m/s)",
+                                                                "Radiação solar (MJ/m²)")),
+                                        
+                                        selectInput("est",
+                                                    "Est:",
+                                                    label = h4("Selecione a estação meteorológica:"),
+                                                    choices = c("A001: Brasília-DF",
+                                                                "A002: Goiânia-GO",
+                                                                "A009: Palmas-TO")),
+                                        
+                                        selectInput("ano",
+                                                    "Ano:",
+                                                    label = h4("Selecione o ano:"),
+                                                    choices = c("2022",
+                                                                "2021",
+                                                                "2020"))
+                                        
+                          ))
              ),
              
+             ## Relações entre regiões ##
              tabPanel("Relações entre regiões"
                       ,
                       div(class="outer",
@@ -209,7 +137,7 @@ ui <- bootstrapPage(
                           leafletOutput("sars_map", width="100%", height="100%"),
 
                           absolutePanel(id = "controls", class = "panel panel-default",
-                                        top = 600, left = 55, width = 900, fixed=TRUE,
+                                        top = 500, left = 55, width = 1200, fixed=TRUE,
                                         draggable = TRUE, height = "auto",
 
                                         h3(textOutput("sars_reactive_case_count"), align = "right"),
@@ -217,9 +145,9 @@ ui <- bootstrapPage(
                                         h6(textOutput("sars_clean_date_reactive"), align = "right"),
                                         h6(textOutput("sars_reactive_country_count"), align = "right"),
                                         plotOutput("sars_epi_curve", height="130px", width="100%"),
-                                        plotOutput("sars_cumulative_plot", height="130px", width="100%")
-                                        # span(("The final count appears to decrease as several cases initially classified as SARS were later re-assigned."),align = "left", style = "font-size:80%"),#tags$br(),
-                                        # span(("Circles show confirmed cases for COVID, SARS, and Ebola, and estimated deaths for H1N1."),align = "left", style = "font-size:80%")
+                                        plotOutput("sars_cumulative_plot", height="130px", width="100%"),
+                                        span(("Botões."),align = "left", style = "font-size:80%"),#tags$br(),
+                                        span(("Gráficos de séries temporais."),align = "left", style = "font-size:80%")
 # 
 #                                         sliderTextInput("sars_plot_date",
 #                                                         label = h5("Select mapping date"),
@@ -227,7 +155,7 @@ ui <- bootstrapPage(
 #                                                         selected = format(sars_max_date, "%d %b %y"),
 #                                                         grid = FALSE,
 #                                                         animate=animationOptions(interval = 3000, loop = FALSE))
-                          ),
+                          )
 
                           # absolutePanel(id = "logo", class = "card", bottom = 15, left = 60, width = 80, fixed=TRUE, draggable = FALSE, height = "auto",
                           #               tags$a(href='https://www.lshtm.ac.uk', tags$img(src='lshtm_dark.png',height='40',width='80'))),
@@ -239,15 +167,16 @@ ui <- bootstrapPage(
                       )
              ),
              
+             ## Modelos ##
              tabPanel("Modelos"
                       ,
 
                       sidebarLayout(
                         sidebarPanel(
-                          radioButtons("comparison_metric", h3("Select:"),
-                                       c("Ex 1" = "cases",
-                                         "Ex 2" = "deaths",
-                                         "Ex 3" = "countries")),
+                          radioButtons("comparison_metric", h3("Selecione:"),
+                                       c("Modelo 1" = "cases",
+                                         "Modelo 2" = "deaths",
+                                         "Modelo 3" = "countries")),
                           textOutput("epi_notes_1"),
                           textOutput("epi_notes_2")
                         ),
@@ -256,13 +185,15 @@ ui <- bootstrapPage(
                       )
              ),
              
+             ## Dados ##
              tabPanel("Dados"
                       ,
-                      numericInput("maxrows", "Rows to show", 25),
+                      numericInput("maxrows", "Linhas a serem exibidas", 25),
                       verbatimTextOutput("rawtable"),
-                      downloadButton("downloadCsv", "Download as CSV"),tags$br(),tags$br()
+                      downloadButton("downloadCsv", "Download CSV"),tags$br(),tags$br()
              ),
-             
+
+             ## Sobre o site ##
              tabPanel("Sobre o site"
                       ,
                       tags$div(
@@ -271,24 +202,12 @@ ui <- bootstrapPage(
                         culminando na elaboração de uma plataforma digital interativa voltada para a análise e exploração de dados meteorológicos oriundos da base 
                         de dados do INMET, abrangendo o intervalo temporal de 2020 a 2021. Através deste percurso, conduziremos a transformação do conhecimento 
                         teórico em aplicações práticas.",
-                        # tags$a(href="https://experience.arcgis.com/experience/685d0ace521648f8a5beeeee1b9125cd", "the WHO,"),
-                        # tags$a(href="https://gisanddata.maps.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6", "Johns Hopkins University,"),"and",
-                        # tags$a(href="https://ourworldindata.org/coronavirus-data-explorer?zoomToSelection=true&time=2020-03-01..latest&country=IND~USA~GBR~CAN~DEU~FRA&region=World&casesMetric=true&interval=smoothed&perCapita=true&smoothing=7&pickerMetric=total_cases&pickerSort=desc", "Our World in Data."),
-                        # "Our aim is to complement these resources with several interactive features, including the timeline function and the ability to overlay past outbreaks.",
 
                         tags$br(),tags$br(),tags$h4("Exploração e Compreensão dos Dados Meteorológicos: Desvelando a Complexidade dos Dados"),
                         "Na fase inaugural, imergiremos em um amplo acervo de dados meteorológicos públicos disponibilizados pelo INMET. 
                         Nesta imersão, decifraremos a infraestrutura que alberga tais dados, solidificando uma compreensão aprofundada das metodologias 
                         subjacentes à coleta e disseminação. A exploração deste ecossistema não somente ampliará o horizonte de compreensão dos dados, mas também
                         fornecerá perspicácia sobre o contexto subjacente e as limitações inerentes.",
-                        # tags$br(),tags$br(),
-                        # "In isolation, these headlines can be hard to interpret.
-                        # How fast is the virus spreading? Are efforts to control the disease working? How does the situation compare with previous epidemics?
-                        # This site is updated daily based on data published by Johns Hopkins University.
-                        # By looking beyond the headlines, we hope it is possible to get a deeper understanding of this unfolding pandemic.",
-                        # tags$br(),tags$br(),
-                        # "An article discussing this site was published in ",tags$a(href="https://theconversation.com/coronavirus-outbreak-a-new-mapping-tool-that-lets-you-scroll-through-timeline-131422", "The Conversation. "),
-                        # "The map was also featured on the BBC World Service program",tags$a(href="https://www.bbc.co.uk/programmes/w3csym33", "Science in Action."),
                         
                         tags$br(),tags$br(),tags$h4("Da Curiosidade à Formulação de Questões Relevantes: Navegando pelas Interrogações"),
                         "Em posse dos questionamentos, procederemos à exploração das teorias matemáticas, estatísticas e computacionais que fundamentam a análise dos dados
@@ -326,13 +245,8 @@ ui <- bootstrapPage(
                         
                         # tags$br(),tags$br(),tags$h4("Contact"),
                         # "https://www.icmc.usp.br/",tags$br(),tags$br(),
-                        tags$img(src = "usp-2018.webp", width = "300px", height = "65px"), tags$img(src = "logo-icmc.png", width = "120px", height = "65px")
-                      )
-             )
-             
-  )          
-)
-
+                        tags$img(src = "usp-university-of-sao-paulo7715.jpg", width = "120px", height = "65px"), tags$img(src = "logo-icmc.png", width = "120px", height = "65px")
+                      ))))        
 
 
 
@@ -396,7 +310,7 @@ server = function(input, output, session) {
   #   paste0(round((cv_aggregated %>% filter(date == formatted_date() & region=="Global"))$new/7,0), " 7-day average")
   # })
   # 
-  # output$mymap <- renderLeaflet({ 
+  # output$mymap <- renderLeaflet({
   #   basemap
   # })
   # 
