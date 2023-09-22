@@ -120,33 +120,9 @@ ui <- bootstrapPage(
 
                           absolutePanel(id = "controls", class = "panel panel-default",
                                         top = 500, left = 55, width = 1200, fixed=TRUE,
-                                        draggable = TRUE, height = "auto",
+                                        draggable = TRUE, height = "auto"
 
-                                        h3(textOutput("sars_reactive_case_count"), align = "right"),
-                                        h4(textOutput("sars_reactive_death_count"), align = "right"),
-                                        h6(textOutput("sars_clean_date_reactive"), align = "right"),
-                                        h6(textOutput("sars_reactive_country_count"), align = "right"),
-                                        plotOutput("sars_epi_curve", height="130px", width="100%"),
-                                        plotOutput("sars_cumulative_plot", height="130px", width="100%"),
-                                        span(("Botões."),align = "left", style = "font-size:80%"),#tags$br(),
-                                        span(("Gráficos de séries temporais."),align = "left", style = "font-size:80%")
-# 
-#                                         sliderTextInput("sars_plot_date",
-#                                                         label = h5("Select mapping date"),
-#                                                         choices = format(unique(sars_cases$date), "%d %b %y"),
-#                                                         selected = format(sars_max_date, "%d %b %y"),
-#                                                         grid = FALSE,
-#                                                         animate=animationOptions(interval = 3000, loop = FALSE))
-                          )
-
-                          # absolutePanel(id = "logo", class = "card", bottom = 15, left = 60, width = 80, fixed=TRUE, draggable = FALSE, height = "auto",
-                          #               tags$a(href='https://www.lshtm.ac.uk', tags$img(src='lshtm_dark.png',height='40',width='80'))),
-                          # 
-                          # absolutePanel(id = "logo", class = "card", bottom = 15, left = 20, width = 30, fixed=TRUE, draggable = FALSE, height = "auto",
-                          #               actionButton("twitter_share", label = "", icon = icon("twitter"),style='padding:5px',
-                          #                            onclick = sprintf("window.open('%s')",
-                          #                                              "https://twitter.com/intent/tweet?text=%20@LSHTM_Vaccines%20outbreak%20mapper&url=https://bit.ly/2uBvnds&hashtags=coronavirus")))
-                      )
+                          ))
              ),
              
              ## Modelos ##
