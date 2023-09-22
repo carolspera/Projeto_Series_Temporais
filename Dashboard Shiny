@@ -28,6 +28,14 @@ cidades_mod <- data.frame(coluna1 = cidades$DC_NOME,coluna2 = cidades$SG_ESTADO)
 cidades_mod$coluna1 <- str_to_title(tolower(cidades_mod$coluna1))
 cidades_mod$Cidade_Estado <- paste(cidades_mod$coluna1, cidades_mod$coluna2, sep = "-")
 
+# Variáveis
+variaveis <- c("Temperatura do ar média (°C)","Temperatura do ar mínima (°C)","Temperatura do ar máxima (°C)","Temperatura do ponto de orvalho média (°C)",
+               "Temperatura do ponto de orvalho mínima (°C)","Temperatura do ponto de orvalho máxima (°C)","Temperatura de bulbo seco (°C)",
+               "Precipitação total (mm)","Umidade relativa média (%)","Umidade relativa mínima (%)","Umidade relativa máxima (%)",
+               "Velocidade do vento a 10 metros de altura (m/s)","Velocidade do vento a 2 metros de altura (m/s)","Lufada - Rajada de vento (Wind gust) (m/s)",
+               "Radiação solar (MJ/m²)")
+ano <- c("2022","2021","2020","2019","2018","2017","2016","2015","2014","2013","2012","2011","2010","2009","2008","2007","2006","2005","2004","2003","2002")
+
 
 ### SHINY UI ###
 
@@ -54,38 +62,14 @@ ui <- bootstrapPage(
                                         selectInput("var",
                                                       "Var:",
                                                       label = h4("Selecione a variável:"),
-                                                           choices = c("Temperatura do ar média (°C)",
-                                                                       "Temperatura do ar mínima (°C)",
-                                                                       "Temperatura do ar máxima (°C)",
-                                                                       "Temperatura do ponto de orvalho média (°C)",
-                                                                       "Temperatura do ponto de orvalho mínima (°C)",
-                                                                       "Temperatura do ponto de orvalho máxima (°C)",
-                                                                       "Temperatura de bulbo seco (°C)",
-                                                                       "Precipitação total (mm)",
-                                                                       "Umidade relativa média (%)",
-                                                                       "Umidade relativa mínima (%)",
-                                                                       "Umidade relativa máxima (%)",
-                                                                       "Velocidade do vento a 10 metros de altura (m/s)",
-                                                                       "Velocidade do vento a 2 metros de altura (m/s)",
-                                                                       "Lufada - Rajada de vento (Wind gust) (m/s)",
-                                                                       "Radiação solar (MJ/m²)")),
+                                                           choices = variaveis),
                                         
                                         selectInput("est", "Escolha a(s) estação(ões) meteorológica(s)", cidades_mod$Cidade_Estado, multiple = TRUE),
                                         
                                         selectInput("ano",
                                                     "Ano:",
                                                     label = h4("Selecione o ano:"),
-                                                    choices = c("2022",
-                                                                "2021",
-                                                                "2020",
-                                                                "2019",
-                                                                "2018",
-                                                                "2017",
-                                                                "2016",
-                                                                "2015",
-                                                                "2014",
-                                                                "2013",
-                                                                "2012")),
+                                                    choices = ano),
                                        
                           #               plotOutput("histCentile", height = 200),
                           #               plotOutput("scatterCollegeIncome", height = 250)
@@ -113,38 +97,14 @@ ui <- bootstrapPage(
                                         selectInput("var",
                                                     "Var:",
                                                     label = h4("Selecione a variável:"),
-                                                    choices = c("Temperatura do ar média (°C)",
-                                                                "Temperatura do ar mínima (°C)",
-                                                                "Temperatura do ar máxima (°C)",
-                                                                "Temperatura do ponto de orvalho média (°C)",
-                                                                "Temperatura do ponto de orvalho mínima (°C)",
-                                                                "Temperatura do ponto de orvalho máxima (°C)",
-                                                                "Temperatura de bulbo seco (°C)",
-                                                                "Precipitação total (mm)",
-                                                                "Umidade relativa média (%)",
-                                                                "Umidade relativa mínima (%)",
-                                                                "Umidade relativa máxima (%)",
-                                                                "Velocidade do vento a 10 metros de altura (m/s)",
-                                                                "Velocidade do vento a 2 metros de altura (m/s)",
-                                                                "Lufada - Rajada de vento (Wind gust) (m/s)",
-                                                                "Radiação solar (MJ/m²)")),
+                                                    choices = variaveis),
                                         
                                         selectInput("est", "Escolha a(s) estação(ões) meteorológica(s)", cidades_mod$Cidade_Estado, multiple = TRUE),
                                         
                                         selectInput("ano",
                                                     "Ano:",
                                                     label = h4("Selecione o ano:"),
-                                                    choices = c("2022",
-                                                                "2021",
-                                                                "2020",
-                                                                "2019",
-                                                                "2018",
-                                                                "2017",
-                                                                "2016",
-                                                                "2015",
-                                                                "2014",
-                                                                "2013",
-                                                                "2012")),
+                                                    choices = ano),
                                         tags$div(id="cite",
                                                  h6('Dados retirados do portal INMET.'))
                                         
