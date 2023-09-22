@@ -46,17 +46,17 @@ ui <- bootstrapPage(
              # tags$style(HTML('#input_date_control {background-color: rgba(0,0,200,0.05);;} #sel_date {background-color: rgba(0,0,255,1);}')),
              windowTitle = "Meteorologia INMET",
              
-             ## Previsão Diária ##
-             tabPanel("Previsão diária",
+             ## Análise gráfica ##
+             tabPanel("Análise geográfica",
                       div(class="outer",
                           tags$head(includeCSS("styles.css")),
                           leafletOutput("map", width="100%", height="100%"),
                           
                           absolutePanel(id = "controls", class = "panel panel-default",
-                                        top = 500, left = 55, width = 1200, fixed=TRUE,
+                                        top = 140, left = 55, width = 400, fixed=TRUE,
                                         draggable = F, height = "auto",
                                         
-                                        h3("Previsão diária"),
+                                        h3("Análise geográfica"),
 
 
                                         selectInput("var",
@@ -81,17 +81,16 @@ ui <- bootstrapPage(
 
              ),
              
-             ## Previsão de longo prazo ##
-             tabPanel("Previsão de longo prazo",
+             ## Análise temporal ##
+             tabPanel("Análise temporal",
                       div(class="outer",
                           tags$head(includeCSS("styles.css")),
-                          leafletOutput("sars_map", width="100%", height="100%"),
                           
                           absolutePanel(id = "controls", class = "panel panel-default",
-                                        top = 500, left = 55, width = 1200, fixed=TRUE,
+                                        top = 140, left = 55, width = 400, fixed=TRUE,
                                         draggable = F, height = "auto",
                                         
-                                        h3("Previsão de longo prazo"),
+                                        h3("Análise temporal"),
                                         
                                         
                                         selectInput("var",
@@ -105,6 +104,34 @@ ui <- bootstrapPage(
                                                     "Ano:",
                                                     label = h4("Selecione o ano:"),
                                                     choices = ano),
+                                        tags$div(id="cite",
+                                                 h6('Dados retirados do portal INMET.')))
+                                   
+                          )
+             ),
+             
+             ## Modelagem preditiva ##
+             tabPanel("Modelagem preditiva",
+                      div(class="outer",
+                          tags$head(includeCSS("styles.css")),
+                          
+                          absolutePanel(id = "controls", class = "panel panel-default",
+                                        top = 140, left = 55, width = 400, fixed=TRUE,
+                                        draggable = F, height = "auto",
+                                        
+                                        h3("Modelagem preditiva"),
+                                        
+                                        selectInput("var",
+                                                    "Var:",
+                                                    label = h4("Selecione a variável:"),
+                                                    choices = variaveis),
+                                      
+                                        selectInput("est", "Escolha a(s) estação(ões) meteorológica(s)", cidades_mod$Cidade_Estado, multiple = TRUE),
+                                        
+                                        selectInput("modelo",
+                                                    "Modelo:",
+                                                    label = h4("Selecione o modelo:"),
+                                                    choices = c("ARMA", "ARIMA", "SARIMA")),
                                         tags$div(id="cite",
                                                  h6('Dados retirados do portal INMET.'))
                                         
@@ -124,24 +151,7 @@ ui <- bootstrapPage(
 
                           ))
              ),
-             
-             ## Modelos ##
-             tabPanel("Modelagem preditiva"
-                      ,
-
-                      sidebarLayout(
-                        sidebarPanel(
-                          radioButtons("comparison_metric", h3("Selecione:"),
-                                       c("Modelo 1" = "cases",
-                                         "Modelo 2" = "deaths",
-                                         "Modelo 3" = "countries")),
-                          textOutput("epi_notes_1"),
-                          textOutput("epi_notes_2")
-                        ),
-
-                        mainPanel(plotlyOutput("comparison_plot"), width = 6)
-                      )
-             ),
+  
              
              ## Dados ##
              tabPanel("Dados"
