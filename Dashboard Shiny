@@ -1,3 +1,4 @@
+# Bibliotecas utilizadas
 library(shinydashboard)
 library(leaflet)
 library(shiny)
@@ -18,8 +19,11 @@ library(geojsonio)
 library(shinyWidgets)
 library(stringr)
 
+# Leitura dos dados
 df <- read.csv("A001.csv", header = TRUE)
 var <- colnames(df)
+
+dados <- read.csv("dados2011_2022.csv", sep=",", header = TRUE)
 
 cidades <- read.csv("CatalogoEstaçõesAutomáticas.csv", sep=";", header = TRUE)
 
@@ -46,7 +50,7 @@ ui <- bootstrapPage(
              # tags$style(HTML('#input_date_control {background-color: rgba(0,0,200,0.05);;} #sel_date {background-color: rgba(0,0,255,1);}')),
              windowTitle = "Meteorologia INMET",
              
-             ## Análise gráfica ##
+             ## Análise geográfica ##
              tabPanel("Análise geográfica",
                       div(class="outer",
                           tags$head(includeCSS("styles.css")),
@@ -64,16 +68,21 @@ ui <- bootstrapPage(
                                                       label = h4("Selecione a variável:"),
                                                            choices = variaveis),
                                         
-                                        selectInput("est", "Escolha a(s) estação(ões) meteorológica(s)", cidades_mod$Cidade_Estado, multiple = TRUE),
+                                        selectInput("est", h4("Selecione a(s) estação(ões) meteorológica(s)"), cidades_mod$Cidade_Estado, multiple = TRUE),
                                         
-                                        selectInput("ano",
-                                                    "Ano:",
-                                                    label = h4("Selecione o ano:"),
-                                                    choices = ano),
-                                       
-                          #               plotOutput("histCentile", height = 200),
-                          #               plotOutput("scatterCollegeIncome", height = 250)
-                          # ),
+                                        # Op1
+                                        selectInput("ano", h4("Op1: Selecione o(s) ano(s):"), ano, multiple = TRUE),
+                                      
+                                        # Op 2
+                                        sliderInput("slider2", label = h4("Op2: Selecione o intervalo de tempo"), min = 2002, 
+                                             max = 2022, value = c(2010,2016)),
+                                        
+                                        # Op 3
+                                        dateRangeInput("dates", label = h4("Op3: Selecione o intervalo de tempo")),
+                                        
+                                        hr(),
+                                        fluidRow(column(4, verbatimTextOutput("value"))),
+    
                                         tags$div(id="cite",
                                                   h6('Dados retirados do portal INMET.'))
            
@@ -98,16 +107,17 @@ ui <- bootstrapPage(
                                                     label = h4("Selecione a variável:"),
                                                     choices = variaveis),
                                         
-                                        selectInput("est", "Escolha a(s) estação(ões) meteorológica(s)", cidades_mod$Cidade_Estado, multiple = TRUE),
+                                        selectInput("est", h4("Selecione a(s) estação(ões) meteorológica(s)"), cidades_mod$Cidade_Estado, multiple = TRUE),
                                         
                                         selectInput("ano",
                                                     "Ano:",
                                                     label = h4("Selecione o ano:"),
                                                     choices = ano),
                                         tags$div(id="cite",
-                                                 h6('Dados retirados do portal INMET.')))
-                                   
-                          )
+                                                 h6('Dados retirados do portal INMET.'))),
+                          column(2, offset = 3,
+                                 mainPanel(
+                                   plotlyOutput("graph_analise_temporal"))))
              ),
              
              ## Modelagem preditiva ##
@@ -133,9 +143,10 @@ ui <- bootstrapPage(
                                                     label = h4("Selecione o modelo:"),
                                                     choices = c("ARMA", "ARIMA", "SARIMA")),
                                         tags$div(id="cite",
-                                                 h6('Dados retirados do portal INMET.'))
-                                        
-                          ))
+                                                 h6('Dados retirados do portal INMET.'))),
+                          column(2, offset = 3,
+                                 mainPanel(
+                                   plotlyOutput("graph_modelagem_preditiva"))))
              ),
              
              ## Relações entre regiões ##
@@ -223,74 +234,31 @@ ui <- bootstrapPage(
 
 server = function(input, output, session) {
   
-  # #Gráficos de linhas
-  # {
-  #   output$graph<- renderPlotly({
-      # pais <- input$pais
-      # data_c = data1 %>% filter(name_long %in% pais)
-      # x <- list(title = "Ano")
-      # y <- list(title = "Expectativa de vida")
-      # plot_ly(data_c, x = ~Year, y = ~Life.expectancy, color = ~name_long, type = 'scatter', mode = 'lines') %>% 
-      #   add_markers() %>%
-      #   layout(xaxis = x, yaxis = y, width = 700, height = 500)
-  #   })
-  # }
-  # 
-  # # covid tab 
-  # formatted_date = reactive({
-  #   format(as.Date(input$plot_date, format="%d %b %y"), "%Y-%m-%d")
-  # })
-  # 
-  # output$clean_date_reactive <- renderText({
-  #   format(as.POSIXct(formatted_date()),"%d %B %Y")
-  # })
-  # 
-  # reactive_db = reactive({
-  #   cv_cases %>% filter(date == formatted_date())
-  # })
-  # 
-  # reactive_db_last7d = reactive({
-  #   cv_cases %>% filter(date == formatted_date() & new_cases>0)
-  # })
-  # 
-  # reactive_db_large = reactive({
-  #   large_countries = reactive_db() %>% filter(alpha3 %in% worldcountry$ADM0_A3)
-  #   #large_countries = reactive %>% filter(alpha3 %in% worldcountry$ADM0_A3)
-  #   worldcountry_subset = worldcountry[worldcountry$ADM0_A3 %in% large_countries$alpha3, ]
-  #   large_countries = large_countries[match(worldcountry_subset$ADM0_A3, large_countries$alpha3),]
-  #   large_countries
-  # })
-  # 
-  # reactive_db_large_last7d = reactive({
-  #   large_countries = reactive_db_last7d() %>% filter(alpha3 %in% worldcountry$ADM0_A3)
-  #   large_countries = large_countries[order(large_countries$alpha3),]
-  #   large_countries
-  # })
-  # 
-  # reactive_polygons = reactive({
-  #   worldcountry[worldcountry$ADM0_A3 %in% reactive_db_large()$alpha3, ]
-  # })
-  # 
-  # reactive_polygons_last7d = reactive({
-  #   worldcountry[worldcountry$ADM0_A3 %in% reactive_db_large_last7d()$alpha3, ]
-  # })
-  # 
-  # output$reactive_case_count <- renderText({
-  #   paste0(prettyNum(sum(reactive_db()$cases), big.mark=","), " cases")
-  # })
-  # 
-  # output$reactive_death_count <- renderText({
-  #   paste0(prettyNum(sum(reactive_db()$deaths), big.mark=","), " deaths")
-  # })
-  # 
-  # output$reactive_country_count <- renderText({
-  #   paste0(nrow(subset(reactive_db(), country!="Diamond Princess Cruise Ship")), " countries/regions affected")
-  # })
-  # 
-  # output$reactive_new_cases_7d <- renderText({
-  #   paste0(round((cv_aggregated %>% filter(date == formatted_date() & region=="Global"))$new/7,0), " 7-day average")
-  # })
-  # 
+  # Análise temporal
+  {
+    output$graph_analise_temporal<- renderPlotly({
+      d <- data.frame(x=seq(1, 365), y=rnorm(365, 5, 3))
+      x <- list(title = "Dia do ano")
+      y <- list(title = "Temperatura média")
+      plot_ly(d, x = ~x, y = ~y, type = 'scatter', mode = 'lines') %>% 
+        add_markers() %>%
+        layout(xaxis = x, yaxis = y, width = 1000, height = 600)
+    })
+  }
+  
+  # Modelagem preditiva
+  {
+    output$graph_modelagem_preditiva<- renderPlotly({
+      d <- data.frame(x=seq(1, 365), y=rnorm(365, 5, 3))
+      x <- list(title = "Dia do ano")
+      y <- list(title = "Temperatura média")
+      plot_ly(d, x = ~x, y = ~y, type = 'scatter', mode = 'lines') %>% 
+        add_markers() %>%
+        layout(xaxis = x, yaxis = y, width = 1000, height = 600)
+    })
+  }
+ 
+
   # output$mymap <- renderLeaflet({
   #   basemap
   # })
