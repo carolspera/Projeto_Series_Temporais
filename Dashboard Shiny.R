@@ -27,6 +27,8 @@ dados <- read.csv("dados2011_2022.csv", sep=",", header = TRUE)
 
 cidades <- read.csv("CatalogoEstaçõesAutomáticas.csv", sep=";", header = TRUE)
 
+worldcountry <- read.csv("countries_codes_and_coordinates.csv", sep=";", header = TRUE)
+
 # Criando uma coluna com o nome da cidade e estado
 cidades_mod <- data.frame(coluna1 = cidades$DC_NOME,coluna2 = cidades$SG_ESTADO)
 cidades_mod$coluna1 <- str_to_title(tolower(cidades_mod$coluna1))
@@ -40,6 +42,40 @@ variaveis <- c("Temperatura do ar média (°C)","Temperatura do ar mínima (°C)
                "Radiação solar (MJ/m²)")
 ano <- c("2022","2021","2020","2019","2018","2017","2016","2015","2014","2013","2012","2011","2010","2009","2008","2007","2006","2005","2004","2003","2002")
 
+var <- c(
+  "Date", "Tair_mean..c.", "Tair_min..c.", "Tair_max..c.", 
+  "Dew_tmean..c.", "Dew_tmin..c.", "Dew_tmax..c.", "Dry_bulb_t..c.", 
+  "Rainfall..mm.", "Patm..mB.", "Rh_mean..porc.", "Rh_max..porc.", 
+  "Rh_min..porc.", "Ws_10..m.s.1.", "Ws_2..m.s.1.", "Ws_gust..m.s.1.", 
+  "Wd..degrees.", "Sr..Mj.m.2.day.1.", "DOY", "Ra..Mj.m.2.day.1.", 
+  "Station_code", "Station", "UF", "Longitude..degrees.", 
+  "Latitude..degrees.", "Altitude..m."
+)
+
+# Função que calcula a média de cada variável por estação
+calcular_media_por_estacao <- function(variavel, data_inicio, data_fim, dados) {
+  # Filtrar os dados de acordo com a data de início e fim
+  mascara <- (data_inicio <= dados$Date) & (dados$Date <= data_fim)
+  dados_corte <- dados[mascara,]
+  
+  # Definir uma função para calcular a média ignorando NA
+  mean_na <- function(x) mean(x, na.rm = TRUE)
+  
+  # Calcular a média da variável para cada estação
+  media_por_estacao <- aggregate(x = dados_corte[, variavel], 
+                                 by = list(dados_corte$Station), 
+                                 FUN = mean_na)
+  
+  # Adicionar as colunas de latitude e longitude
+  media_por_estacao$Latitude <- c("-15.78944","-3.10719","-30.05","-30.05361","-13.01667","-23.48333")
+  media_por_estacao$Longitude <- c("-47.92583","-60.01639","-51.16667","-51.17472","-38.51667","-46.61667")
+  
+  # Renomear as colunas para ficar mais informativo
+  colnames(media_por_estacao) <- c("Estacao", paste("Media", variavel, sep = "_"), "Latitude", "Longitude")
+  
+  return(media_por_estacao)
+}
+
 
 ### SHINY UI ###
 
@@ -47,7 +83,6 @@ ui <- bootstrapPage(
   tags$head(includeHTML("gtag.html")),
   navbarPage(theme = shinytheme("flatly"), collapsible = TRUE,
              HTML('<a style="text-decoration:none;cursor:default;color:#FFFFFF;" class="active" href="#">Dados Meteorológicos INMET</a>'), id="nav",
-             # tags$style(HTML('#input_date_control {background-color: rgba(0,0,200,0.05);;} #sel_date {background-color: rgba(0,0,255,1);}')),
              windowTitle = "Meteorologia INMET",
              
              ## Análise geográfica ##
@@ -234,7 +269,7 @@ ui <- bootstrapPage(
 
 server = function(input, output, session) {
   
-  # Análise temporal
+  ## Análise temporal ##
   {
     output$graph_analise_temporal<- renderPlotly({
       d <- data.frame(x=seq(1, 365), y=rnorm(365, 5, 3))
@@ -246,7 +281,7 @@ server = function(input, output, session) {
     })
   }
   
-  # Modelagem preditiva
+  ## Modelagem preditiva ##
   {
     output$graph_modelagem_preditiva<- renderPlotly({
       d <- data.frame(x=seq(1, 365), y=rnorm(365, 5, 3))
@@ -260,30 +295,30 @@ server = function(input, output, session) {
  
   
   
-  # covid tab 
-  formatted_date = reactive({
-    format(as.Date(input$plot_date, format="%d %b %y"), "%Y-%m-%d")
-  })
-
-  output$clean_date_reactive <- renderText({
-    format(as.POSIXct(formatted_date()),"%d %B %Y")
-  })
-
-  reactive_db = reactive({
-    cv_cases %>% filter(Date == formatted_date())
-  })
-
-  reactive_db_last7d = reactive({
-    cv_cases %>% filter(Date == formatted_date() & new_cases>0)
-  })
-  # 
-  # reactive_db_large = reactive({
-  #   large_countries = reactive_db() %>% filter(alpha3 %in% worldcountry$ADM0_A3)
-  #   #large_countries = reactive %>% filter(alpha3 %in% worldcountry$ADM0_A3)
-  #   worldcountry_subset = worldcountry[worldcountry$ADM0_A3 %in% large_countries$alpha3, ]
-  #   large_countries = large_countries[match(worldcountry_subset$ADM0_A3, large_countries$alpha3),]
-  #   large_countries
-  # })
+#   # covid tab 
+#   formatted_date = reactive({
+#     format(as.Date(input$plot_date, format="%d %b %y"), "%Y-%m-%d")
+#   })
+# 
+#   output$clean_date_reactive <- renderText({
+#     format(as.POSIXct(formatted_date()),"%d %B %Y")
+#   })
+# 
+#   reactive_db = reactive({
+#     dados %>% filter(date == formatted_date())
+#   })
+# 
+#   reactive_db_last7d = reactive({
+#     dados %>% filter(Date == formatted_date() & new_cases>0)
+#   })
+# 
+# reactive_db_large = reactive({
+#   large_countries = reactive_db() %>% filter(alpha3 %in% worldcountry$ADM0_A3)
+#   #large_countries = reactive %>% filter(alpha3 %in% worldcountry$ADM0_A3)
+#   worldcountry_subset = worldcountry[worldcountry$ADM0_A3 %in% large_countries$alpha3, ]
+#   large_countries = large_countries[match(worldcountry_subset$ADM0_A3, large_countries$alpha3),]
+#   large_countries
+# })
   # 
   # reactive_db_large_last7d = reactive({
   #   large_countries = reactive_db_last7d() %>% filter(alpha3 %in% worldcountry$ADM0_A3)
@@ -315,25 +350,44 @@ server = function(input, output, session) {
   #   paste0(round((cv_aggregated %>% filter(date == formatted_date() & region=="Global"))$new/7,0), " 7-day average")
   # })
   
-  ## Análise geográfica
-  # output$map <- renderLeaflet({
-  #   basemap
+ 
+  
+  reactive_db <- reactive({
+    calcular_media_por_estacao(input$var, input$dates[1], input$dates[2], dados)
+  })
+  
+  ## Análise geográfica ##
+  
+  # Create the map
+  output$map <- renderLeaflet({
+    leaflet() %>%
+      addTiles(attribution = 'Dados retirados do portal INMET.') %>%
+      setView(lng = -47.9292, lat = -15.7801, zoom = 4)
+  })
+
+      observeEvent(reactive_db(), {
+        leafletProxy("map") %>%
+          clearMarkers() %>%
+          clearShapes() %>%
+          addCircleMarkers(data = reactive_db(), lat = ~ Latitude, lng = ~ Longitude, weight = 1, 
+                           radius = ~(paste0("Media_", input$var))^(2),
+                           fillOpacity = 0.1, color = "blue", group = "media_estacoes",
+                           label = sprintf("<strong>%s</strong><br/>Média: %g", reactive_db()$Estacao, reactive_db()[[paste0("Media_", input$var)]]),
+                           labelOptions = labelOptions(
+                             style = list("font-weight" = "normal", padding = "3px 8px"),
+                             textsize = "15px", direction = "auto")) 
+      })
   # })
-  # 
-  # observeEvent(input$plot_date, {
-  #   leafletProxy("map") %>% 
-  #     clearMarkers() %>%
-  #     clearShapes() %>%
-  #     
-  #     addCircleMarkers(data = reactive_db(), lat = ~ latitude, lng = ~ longitude, weight = 1, radius = ~(cases)^(1/5.5), 
-  #                      fillOpacity = 0.1, color = covid_col, group = "2019-COVID (cumulative)",
-  #                      label = sprintf("<strong>%s (cumulative)</strong><br/>Confirmed cases: %g<br/>Deaths: %d<br/>Cases per million: %g<br/>Deaths per million: %g", reactive_db()$country, reactive_db()$cases, reactive_db()$deaths, reactive_db()$cases_per_million, reactive_db()$deaths_per_million) %>% lapply(htmltools::HTML),
-  #                      labelOptions = labelOptions(
-  #                        style = list("font-weight" = "normal", padding = "3px 8px", "color" = covid_col),
-  #                        textsize = "15px", direction = "auto")) %>%  
-  #     
-  #     addPolygons(data = reactive_polygons(), stroke = FALSE, smoothFactor = 0.1, fillOpacity = 0.15, fillColor = ~cv_pal(reactive_db_large()$deaths_per_million)) %>%
-  #     
+      # addCircleMarkers(data = reactive_db(), lat = ~ Latitude..degrees., lng = ~ Longitude..degrees., weight = 1, radius = ~(variavel)^(1/5.5),
+      #                  fillOpacity = 0.1, color = covid_col, group = "2019-COVID (cumulative)",
+      #                  label = sprintf("<strong>%s (cumulative)</strong><br/>Confirmed cases: %g<br/>Deaths: %d<br/>Cases per million: %g<br/>Deaths per million: %g", reactive_db()$country, reactive_db()$cases, reactive_db()$deaths, reactive_db()$cases_per_million, reactive_db()$deaths_per_million) %>% lapply(htmltools::HTML),
+      #                  labelOptions = labelOptions(
+      #                    style = list("font-weight" = "normal", padding = "3px 8px", "color" = covid_col),
+      #                    textsize = "15px", direction = "auto")) %>%
+      # 
+      # addPolygons(data = reactive_polygons(), stroke = FALSE, smoothFactor = 0.1, fillOpacity = 0.15, fillColor = ~cv_pal(reactive_db_large()$deaths_per_million))
+    # %>%
+
   #     addCircleMarkers(data = reactive_db_last7d(), lat = ~ latitude, lng = ~ longitude, weight = 1, radius = ~(new_cases)^(1/5.5), 
   #                      fillOpacity = 0.1, color = covid_col, group = "2019-COVID (new)",
   #                      label = sprintf("<strong>%s (7-day average)</strong><br/>Confirmed cases: %g<br/>Deaths: %d<br/>Cases per million: %g<br/>Deaths per million: %g", reactive_db_last7d()$country, round(reactive_db_last7d()$new_cases/7,0), round(reactive_db_last7d()$new_deaths/7,0), round(reactive_db_last7d()$new_cases_per_million/7,1), round(reactive_db_last7d()$new_deaths_per_million/7,1)) %>% lapply(htmltools::HTML),
