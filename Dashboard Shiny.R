@@ -240,9 +240,9 @@ server = function(input, output, session) {
       d <- data.frame(x=seq(1, 365), y=rnorm(365, 5, 3))
       x <- list(title = "Dia do ano")
       y <- list(title = "Temperatura média")
-      plot_ly(d, x = ~x, y = ~y, type = 'scatter', mode = 'lines') %>% 
+      plot_ly(d, x = ~x, y = ~y, type = 'scatter', mode = 'lines', width = 1000, height = 600) %>% 
         add_markers() %>%
-        layout(xaxis = x, yaxis = y, width = 1000, height = 600)
+        layout(xaxis = x, yaxis = y)
     })
   }
   
@@ -252,30 +252,30 @@ server = function(input, output, session) {
       d <- data.frame(x=seq(1, 365), y=rnorm(365, 5, 3))
       x <- list(title = "Dia do ano")
       y <- list(title = "Temperatura média")
-      plot_ly(d, x = ~x, y = ~y, type = 'scatter', mode = 'lines') %>% 
+      plot_ly(d, x = ~x, y = ~y, type = 'scatter', mode = 'lines', width = 1000, height = 600) %>% 
         add_markers() %>%
-        layout(xaxis = x, yaxis = y, width = 1000, height = 600)
+        layout(xaxis = x, yaxis = y)
     })
   }
  
   
   
   # covid tab 
-  # formatted_date = reactive({
-  #   format(as.Date(input$plot_date, format="%d %b %y"), "%Y-%m-%d")
-  # })
-  # 
-  # output$clean_date_reactive <- renderText({
-  #   format(as.POSIXct(formatted_date()),"%d %B %Y")
-  # })
-  # 
-  # reactive_db = reactive({
-  #   cv_cases %>% filter(date == formatted_date())
-  # })
-  # 
-  # reactive_db_last7d = reactive({
-  #   cv_cases %>% filter(date == formatted_date() & new_cases>0)
-  # })
+  formatted_date = reactive({
+    format(as.Date(input$plot_date, format="%d %b %y"), "%Y-%m-%d")
+  })
+
+  output$clean_date_reactive <- renderText({
+    format(as.POSIXct(formatted_date()),"%d %B %Y")
+  })
+
+  reactive_db = reactive({
+    cv_cases %>% filter(Date == formatted_date())
+  })
+
+  reactive_db_last7d = reactive({
+    cv_cases %>% filter(Date == formatted_date() & new_cases>0)
+  })
   # 
   # reactive_db_large = reactive({
   #   large_countries = reactive_db() %>% filter(alpha3 %in% worldcountry$ADM0_A3)
