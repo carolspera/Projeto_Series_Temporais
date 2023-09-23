@@ -27,8 +27,6 @@ dados <- read.csv("dados2011_2022.csv", sep=",", header = TRUE)
 
 cidades <- read.csv("CatalogoEstaçõesAutomáticas.csv", sep=";", header = TRUE)
 
-worldcountry <- read.csv("countries_codes_and_coordinates.csv", sep=";", header = TRUE)
-
 # Criando uma coluna com o nome da cidade e estado
 cidades_mod <- data.frame(coluna1 = cidades$DC_NOME,coluna2 = cidades$SG_ESTADO)
 cidades_mod$coluna1 <- str_to_title(tolower(cidades_mod$coluna1))
