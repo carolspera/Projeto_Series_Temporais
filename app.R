@@ -27,9 +27,6 @@ library(zoo)
 
 
 # Leitura dos dados
-df <- read.csv("A001.csv", header = TRUE)
-var <- colnames(df)
-
 dados <- read.csv("dados2011_2022.csv", sep=",", header = TRUE)
 dados$Date = as.Date(dados$Date)
 
@@ -43,13 +40,6 @@ cidades_mod$coluna1 <- str_to_title(tolower(cidades_mod$coluna1))
 cidades_mod$Cidade_Estado <- paste(cidades_mod$coluna1, cidades_mod$coluna2, sep = "-")
 
 # Variáveis
-variaveis <- c("Temperatura do ar média (°C)","Temperatura do ar mínima (°C)","Temperatura do ar máxima (°C)","Temperatura do ponto de orvalho média (°C)",
-               "Temperatura do ponto de orvalho mínima (°C)","Temperatura do ponto de orvalho máxima (°C)","Temperatura de bulbo seco (°C)",
-               "Precipitação total (mm)","Umidade relativa média (%)","Umidade relativa mínima (%)","Umidade relativa máxima (%)",
-               "Velocidade do vento a 10 metros de altura (m/s)","Velocidade do vento a 2 metros de altura (m/s)","Lufada - Rajada de vento (Wind gust) (m/s)",
-               "Radiação solar (MJ/m²)")
-ano <- c("2022","2021","2020","2019","2018","2017","2016","2015","2014","2013","2012","2011","2010","2009","2008","2007","2006","2005","2004","2003","2002")
-
 var <- names(dados)
 
 # Função que calcula a média de cada variável por estação
@@ -88,16 +78,73 @@ ui <- fluidPage(
           sidebarLayout(
             sidebarPanel(
               numericInput("k", "Período (dias):", value = 30, min = 0),
-              selectInput("var", "Selecione a variável:", var),
+              selectInput("var", "Selecione a variável:", var, selected = var[2]),
               selectInput("est", "Selecione a estação:", estacoes),
               dateInput("data_i", "Data de início", "2015-01-01"),
               dateInput("data_f", "Data de fim", "2016-01-01")
             ),
             mainPanel(
-                plotOutput("graph_analise_temporal")
+                plotOutput("graph_media_movel")
             )
           )
-        )
+        ),
+        tabPanel("Sazonaliade")
+      )
+    ),
+    tabPanel("Modelagem Preditiva"),
+    tabPanel("Relações entre as regiões"),
+    tabPanel("Dados"),
+    tabPanel("Sobre o site",
+      tags$div(
+        tags$h4("Introdução"),
+        "No contexto de um programa de aprendizado ao longo de um semestre acadêmico, empreenderemos uma jornada composta por quatro fases cruciais,
+        culminando na elaboração de uma plataforma digital interativa voltada para a análise e exploração de dados meteorológicos oriundos da base 
+        de dados do INMET, abrangendo o intervalo temporal de 2020 a 2021. Através deste percurso, conduziremos a transformação do conhecimento 
+        teórico em aplicações práticas.",
+
+        tags$br(),tags$br(),tags$h4("Exploração e Compreensão dos Dados Meteorológicos: Desvelando a Complexidade dos Dados"),
+        "Na fase inaugural, imergiremos em um amplo acervo de dados meteorológicos públicos disponibilizados pelo INMET. 
+        Nesta imersão, decifraremos a infraestrutura que alberga tais dados, solidificando uma compreensão aprofundada das metodologias 
+        subjacentes à coleta e disseminação. A exploração deste ecossistema não somente ampliará o horizonte de compreensão dos dados, mas também
+        fornecerá perspicácia sobre o contexto subjacente e as limitações inerentes.",
+        
+        tags$br(),tags$br(),tags$h4("Da Curiosidade à Formulação de Questões Relevantes: Navegando pelas Interrogações"),
+        "Em posse dos questionamentos, procederemos à exploração das teorias matemáticas, estatísticas e computacionais que fundamentam a análise dos dados
+        meteorológicos. Esta etapa nos capacitará a conduzir investigações mais abrangentes, utilizando técnicas estatísticas robustas e métodos 
+        avançados de análise computacional. Ao fazê-lo, serão revelados padrões, tendências e correlações latentes nos dados, reforçando sua habilidade
+        para sustentar decisões informadas.",
+        
+        tags$br(),tags$br(),tags$h4("Alicerces Teóricos para Análise Profunda: Explorando a Essência da Investigação"),
+        "Em posse dos questionamentos, procederemos à exploração das teorias matemáticas, estatísticas e computacionais que fundamentam a análise
+        dos dados meteorológicos. Esta etapa nos capacitará a conduzir investigações mais abrangentes, utilizando técnicas estatísticas robustas
+        e métodos avançados de análise computacional. Ao fazê-lo, serão revelados padrões, tendências e correlações latentes nos dados, 
+        reforçando sua habilidade para sustentar decisões informadas.",
+        
+        tags$br(),tags$br(),tags$h4("Desenvolvimento de uma Plataforma Web Interativa: Unindo Teoria e Prática"),
+        "O ápice deste programa educacional será materializado na construção de uma plataforma digital interativa.
+        Essa plataforma se converterá em um portal, viabilizando a análise de dados meteorológicos a um público de diversas disciplinas e 
+        níveis de expertise. Por meio da adoção de uma abordagem intuitiva e customizada, a plataforma habilitará os usuários a explorar
+        discernimentos de forma eficaz. Dessa maneira, a teoria será concretizada por meio de uma ferramenta funcional, oferecendo uma experiência
+        envolvente tanto para os pesquisadores quanto para os interessados em compreender os padrões climáticos característicos do período 
+        entre 2020 e 2021.",
+        
+        tags$br(),tags$br(),tags$h4("Referências"),
+        tags$b("Pacote ‘BrazilMet’: "), tags$a(href="https://github.com/nytimes/covid-19-data", "Package ‘BrazilMet’"),tags$br(),
+        tags$b("GitHub dos autores da biblioteca ‘BrazilMet’: "), tags$a(href="https://github.com/FilgueirasR/BrazilMet", "GitHub - FilgueirasR / BrazilMet"),tags$br(),
+        tags$b("Portal do INMET: "), tags$a(href="https://portal.inmet.gov.br/", "Instituto Nacional de Meteorologia (INMET)"),tags$br(),
+        
+        tags$br(),tags$br(),tags$h4("Autores"),
+        "Aime Gomes da Nobrega",tags$br(),
+        "Alice Guimarães Perez",tags$br(),
+        "André Dylan Andrade",tags$br(),
+        "Carolina Spera Braga",tags$br(),
+        "Daniel Gregório Chagas",tags$br(),
+        "Matheus Vinicius Barreto de Farias",tags$br(),
+        "Thaís Parron Alves",tags$br(),
+        
+        # tags$br(),tags$br(),tags$h4("Contact"),
+        # "https://www.icmc.usp.br/",tags$br(),tags$br(),
+        tags$img(src = "usp-university-of-sao-paulo7715.jpg", width = "120px", height = "65px"), tags$img(src = "logo-icmc.png", width = "120px", height = "65px")
       )
     )
   )
@@ -106,7 +153,7 @@ ui <- fluidPage(
 
 # Server logic
 server <- function(input, output) {
-  output$graph_analise_temporal <- renderPlot({
+  output$graph_media_movel <- renderPlot({
 
     mascara = (dados$Date >= as.Date(input$data_i)) &
         (dados$Date <= as.Date(input$data_f)) &
@@ -120,7 +167,6 @@ server <- function(input, output) {
       geom_line(aes(y = rollmean(y, k = input$k, na.pad=TRUE), color="#FF0000")) +
       labs(x = "Data", y = input$var, color="Média móvel") +
       theme(legend.position = "none")
-      # labs(title = paste("Series:", "teste"), x = "Data", y = input$var)
   })
 }
 
