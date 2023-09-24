@@ -187,7 +187,16 @@ ui <- fluidPage(
         ),
 
         ## Modelagem preditiva
-        tabPanel("Modelagem preditiva"),
+        tabPanel("Modelagem preditiva",
+            sidebarLayout(
+                sidebarPanel(
+                    selectInput("modelagem_var", h5("Selecione a variável:"), variaveis),
+                    selectInput("modelagem_est", h5("Selecione a(s) estação(ões) meteorológica(s)"), cidades_mod$Cidade_Estado, multiple = TRUE),
+                    selectInput("modelagem_modelo", h5("Selecione o modelo:"), c("ARMA", "ARIMA", "SARIMA")),
+                    tags$div(id = "cite", h6('Dados retirados do portal INMET.'))),
+                mainPanel()
+            )        
+        ),
 
         ## Sobre o site
         tabPanel("Sobre o site",
