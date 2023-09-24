@@ -137,23 +137,15 @@ ui <- fluidPage(
                       div(class="outer",
                           tags$head(includeCSS("styles.css")),
                           leafletOutput("map", width="100%", height="100%"),
-                          
                           absolutePanel(id = "controls", class = "panel panel-default",
                                         top = 140, left = 55, width = 400, fixed=TRUE,
                                         draggable = F, height = "auto",
-                                        
                                         h3("Análise geográfica"),
-                                        
                                         selectInput("var","Var:",label = h4("Selecione a variável:"),choices = variaveis),
-                                        
-                                        sliderInput("ano", label = h4("Selecione o intervalo de tempo"), min = 2011,
-                                                    max = 2022, value = 2018),
-                                        
-                                        hr(),
+                                        sliderInput("ano", label = h4("Selecione o ano"), min = 2011,
+                                                    max = 2022, value = 2018), hr(),
                                         fluidRow(column(4, verbatimTextOutput("value"))),
-                                        
-                                        tags$div(id="cite",
-                                                 h6('Dados retirados do portal INMET.'))))
+                                        tags$div(id="cite", h6('Dados retirados do portal INMET.'))))
                       
              ),
              
@@ -167,8 +159,8 @@ ui <- fluidPage(
                                                 selectInput("mediamovel_var", h5("Selecione a variável:"), var, selected = var[2]),
                                                 selectInput("mediamovel_est", h5("Selecione a estação:"), estacoes),
                                                 dateInput("mediamovel_data_i", h5("Data de início"), "2015-01-01"),
-                                                dateInput("mediamovel_data_f", h5("Data de fim"), "2016-01-01")
-                                              ),
+                                                dateInput("mediamovel_data_f", h5("Data de fim"), "2016-01-01"),
+                                                tags$div(id = "cite", h6('Dados retirados do portal INMET.'))),
                                               mainPanel(
                                                 plotOutput("graph_media_movel")
                                               )
@@ -180,8 +172,8 @@ ui <- fluidPage(
                                                 selectInput("sazonalidade_var", h5("Selecione a variável:"), var, selected = var[2]),
                                                 selectInput("sazonalidade_est", h5("Selecione a estação:"), estacoes),
                                                 dateInput("sazonalidade_data_i", h5("Data de início"), "2013-01-01"),
-                                                dateInput("sazonalidade_data_f", h5("Data de fim"), "2020-01-01")
-                                              ),
+                                                dateInput("sazonalidade_data_f", h5("Data de fim"), "2020-01-01"),
+                                                tags$div(id = "cite", h6('Dados retirados do portal INMET.'))),
                                               mainPanel(
                                                 plotOutput("graph_sazonalidade")
                                               )
@@ -190,13 +182,22 @@ ui <- fluidPage(
                       )
              ),
              ## Modelagem preditiva 
-             tabPanel("Modelagem Preditiva"),
-             
-             ## Relações entre regiões 
-             tabPanel("Relações entre as regiões"),
-             
-             # Dados 
-             tabPanel("Dados"),
+             tabPanel("Modelagem preditiva",
+                      div(class="outer",
+                          tags$head(includeCSS("styles.css")),
+                          absolutePanel(id = "controls", class = "panel panel-default",
+                                        top = 140, left = 55, width = 400, fixed=TRUE,
+                                        draggable = F, height = "auto",
+                                        h3("Modelagem preditiva"),
+                                        selectInput("var", "Var:", label = h4("Selecione a variável:"), choices = variaveis),
+                                        selectInput("est", "Escolha a(s) estação(ões) meteorológica(s)", cidades_mod$Cidade_Estado, multiple = TRUE),
+                                        selectInput("modelo", "Modelo:", label = h4("Selecione o modelo:"), choices = c("ARMA", "ARIMA", "SARIMA")),
+                                        tags$div(id="cite", h6('Dados retirados do portal INMET.')))
+                          # column(2, offset = 3,
+                          #        mainPanel(
+                          #          plotlyOutput("graph_modelagem_preditiva")))
+                          )
+             ),
              
              ## Sobre o site 
              tabPanel("Sobre o site",
@@ -249,7 +250,7 @@ ui <- fluidPage(
                         
                         # tags$br(),tags$br(),tags$h4("Contact"),
                         # "https://www.icmc.usp.br/",tags$br(),tags$br(),
-                        tags$img(src = "usp-2018.webp", width = "120px", height = "65px"), tags$img(src = "logo-icmc.png", width = "120px", height = "65px")
+                        tags$img(src = "usp-university-of-sao-paulo7715.jpg", width = "120px", height = "65px"), tags$img(src = "logo-icmc.png", width = "120px", height = "65px")
                       )
              )
   )
@@ -317,16 +318,11 @@ output$map <- renderLeaflet({
     data_filtered <- subset(medias_por_ano, Ano == ano)
     pal <- colorBin("YlOrRd", domain = data_filtered$media_temp_ar, bins = bins)
     labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
-                      data_filtered$Station, 
-                      data_filtered$media_temp_ar) %>% lapply(htmltools::HTML)
-    
-    
+                      data_filtered$Station, data_filtered$media_temp_ar) %>% lapply(htmltools::HTML)
     mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
       addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15, 
-                 popup = ~Station, radius = 30000,
-                 color = ~pal(as.numeric(Tair_mean..c.)), fillOpacity = 1) %>%
-      addLegend("bottomright", pal = pal, values = ~as.numeric(Tair_mean..c.), 
-                title = "Tair_mean..c.", opacity = 1)
+                 popup = ~Station, radius = 30000, color = ~pal(as.numeric(Tair_mean..c.)), fillOpacity = 1) %>%
+      addLegend("bottomright", pal = pal, values = ~as.numeric(Tair_mean..c.), title = "Temperatura do ar média (°C)", opacity = 1)
     
     mapa
     
@@ -340,16 +336,11 @@ output$map <- renderLeaflet({
     data_filtered <- subset(medias_por_ano, Ano == ano)
     pal <- colorBin("YlOrRd", domain = data_filtered$media_temp_ar_min, bins = bins)
     labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
-                      data_filtered$Station, 
-                      data_filtered$media_temp_ar_min) %>% lapply(htmltools::HTML)
-    
-    
+                      data_filtered$Station, data_filtered$media_temp_ar_min) %>% lapply(htmltools::HTML)
     mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
       addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15, 
-                 popup = ~Station, radius = 30000,
-                 color = ~pal(as.numeric(Tair_min..c.)), fillOpacity = 1) %>%
-      addLegend("bottomright", pal = pal, values = ~as.numeric(Tair_min..c.), 
-                title = "Tair_min..c.", opacity = 1)
+                 popup = ~Station, radius = 30000, color = ~pal(as.numeric(Tair_min..c.)), fillOpacity = 1) %>%
+      addLegend("bottomright", pal = pal, values = ~as.numeric(Tair_min..c.), title = "Temperatura do ar mínima (°C)", opacity = 1)
     
     mapa
     
@@ -361,16 +352,11 @@ output$map <- renderLeaflet({
     data_filtered <- subset(medias_por_ano, Ano == ano)
     pal <- colorBin("YlOrRd", domain = data_filtered$media_temp_ar_max, bins = bins)
     labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
-                      data_filtered$Station, 
-                      data_filtered$media_temp_ar_max) %>% lapply(htmltools::HTML)
-    
-    
+                      data_filtered$Station, data_filtered$media_temp_ar_max) %>% lapply(htmltools::HTML)
     mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
       addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15, 
-                 popup = ~Station, radius = 30000,
-                 color = ~pal(as.numeric(Tair_max..c.)), fillOpacity = 1) %>%
-      addLegend("bottomright", pal = pal, values = ~as.numeric(Tair_max..c.), 
-                title = "Tair_max..c.", opacity = 1)
+                 popup = ~Station, radius = 30000, color = ~pal(as.numeric(Tair_max..c.)), fillOpacity = 1) %>%
+      addLegend("bottomright", pal = pal, values = ~as.numeric(Tair_max..c.), title = "Temperatura do ar máxima (°C)", opacity = 1)
     
     mapa
     
@@ -382,16 +368,11 @@ output$map <- renderLeaflet({
     data_filtered <- subset(medias_por_ano, Ano == ano)
     pal <- colorBin("YlOrRd", domain = data_filtered$media_dew_min, bins = bins)
     labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
-                      data_filtered$Station, 
-                      data_filtered$media_dew_min) %>% lapply(htmltools::HTML)
-    
-    
+                      data_filtered$Station, data_filtered$media_dew_min) %>% lapply(htmltools::HTML)
     mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
       addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15, 
-                 popup = ~Station, radius = 30000,
-                 color = ~pal(as.numeric(Dew_tmin..c.)), fillOpacity = 1) %>%
-      addLegend("bottomright", pal = pal, values = ~as.numeric(Dew_tmin..c.), 
-                title = "Dew_tmin..c.", opacity = 1)
+                 popup = ~Station, radius = 30000, color = ~pal(as.numeric(Dew_tmin..c.)), fillOpacity = 1) %>%
+      addLegend("bottomright", pal = pal, values = ~as.numeric(Dew_tmin..c.), title = "Temperatura do ponto de orvalho mínima (°C)", opacity = 1)
     
     mapa
     
@@ -403,16 +384,11 @@ output$map <- renderLeaflet({
     data_filtered <- subset(medias_por_ano, Ano == ano)
     pal <- colorBin("YlOrRd", domain = data_filtered$media_dew_max, bins = bins)
     labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
-                      data_filtered$Station, 
-                      data_filtered$media_dew_max) %>% lapply(htmltools::HTML)
-    
-    
+                      data_filtered$Station, data_filtered$media_dew_max) %>% lapply(htmltools::HTML)
     mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
       addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15, 
-                 popup = ~Station, radius = 30000,
-                 color = ~pal(as.numeric(Dew_tmax..c.)), fillOpacity = 1) %>%
-      addLegend("bottomright", pal = pal, values = ~as.numeric(Dew_tmax..c.), 
-                title = "Dew_tmax..c.", opacity = 1)
+                 popup = ~Station, radius = 30000, color = ~pal(as.numeric(Dew_tmax..c.)), fillOpacity = 1) %>%
+      addLegend("bottomright", pal = pal, values = ~as.numeric(Dew_tmax..c.), title = "Temperatura do ponto de orvalho máxima (°C)", opacity = 1)
     
     mapa
     
@@ -424,16 +400,11 @@ output$map <- renderLeaflet({
     data_filtered <- subset(medias_por_ano, Ano == ano)
     pal <- colorBin("YlOrRd", domain = data_filtered$media_dry_bulb, bins = bins)
     labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
-                      data_filtered$Station, 
-                      data_filtered$media_dry_bulb) %>% lapply(htmltools::HTML)
-    
-    
+                      data_filtered$Station, data_filtered$media_dry_bulb) %>% lapply(htmltools::HTML)
     mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
       addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15, 
-                 popup = ~Station, radius = 30000,
-                 color = ~pal(as.numeric(Dry_bulb_t..c.)), fillOpacity = 1) %>%
-      addLegend("bottomright", pal = pal, values = ~as.numeric(Dry_bulb_t..c.), 
-                title = "Dry_bulb_t..c.", opacity = 1)
+                 popup = ~Station, radius = 30000, color = ~pal(as.numeric(Dry_bulb_t..c.)), fillOpacity = 1) %>%
+      addLegend("bottomright", pal = pal, values = ~as.numeric(Dry_bulb_t..c.), title = "Temperatura de bulbo seco (°C)", opacity = 1)
     
     mapa
     
@@ -445,16 +416,11 @@ output$map <- renderLeaflet({
     data_filtered <- subset(medias_por_ano, Ano == ano)
     pal <- colorBin("YlOrRd", domain = data_filtered$media_rainfall, bins = bins)
     labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
-                      data_filtered$Station, 
-                      data_filtered$media_rainfall) %>% lapply(htmltools::HTML)
-    
-    
+                      data_filtered$Station, data_filtered$media_rainfall) %>% lapply(htmltools::HTML)
     mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
       addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15, 
-                 popup = ~Station, radius = 30000,
-                 color = ~pal(as.numeric(Rainfall..mm.)), fillOpacity = 1) %>%
-      addLegend("bottomright", pal = pal, values = ~as.numeric(Rainfall..mm.), 
-                title = "Rainfall..mm.", opacity = 1)
+                 popup = ~Station, radius = 30000, color = ~pal(as.numeric(Rainfall..mm.)), fillOpacity = 1) %>%
+      addLegend("bottomright", pal = pal, values = ~as.numeric(Rainfall..mm.), title = "Precipitação total (mm)", opacity = 1)
     
     mapa
     
