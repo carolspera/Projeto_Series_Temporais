@@ -353,7 +353,7 @@ output$map <- renderLeaflet({
   }else if (input$var == "Tair_max..c."){
     media_temp_ar_max <- as.numeric(medias_por_ano$"Tair_max..c.")
     ano <- input$ano
-    bins <- seq(16, 34, by = 2)
+    bins <- seq(16, 34, by = 4)
     data_filtered <- subset(medias_por_ano, Ano == ano)
     pal <- colorBin("YlOrRd", domain = data_filtered$media_temp_ar_max, bins = bins)
     labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
@@ -449,7 +449,7 @@ output$map <- renderLeaflet({
   }else if (input$var == "Rh_mean..porc."){
     media_urm <- as.numeric(medias_por_ano$"Rh_mean..porc.")
     ano <- input$ano
-    bins <- seq(60, 82, by = 2)
+    bins <- seq(60, 82, by = 4)
     data_filtered <- subset(medias_por_ano, Ano == ano)
     pal <- colorBin("YlOrRd", domain = data_filtered$media_urm, bins = bins)
     labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
@@ -481,7 +481,7 @@ output$map <- renderLeaflet({
   }else if (input$var == "Rh_min..porc."){
     media_urmi <- as.numeric(medias_por_ano$"Rh_min..porc.")
     ano <- input$ano
-    bins <- seq(36, 66, by = 2)
+    bins <- seq(36, 66, by = 4)
     data_filtered <- subset(medias_por_ano, Ano == ano)
     pal <- colorBin("YlOrRd", domain = data_filtered$media_urmi, bins = bins)
     labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
@@ -497,7 +497,7 @@ output$map <- renderLeaflet({
   }else if (input$var == "Ws_10..m.s.1."){
     media_ws10 <- as.numeric(medias_por_ano$"Ws_10..m.s.1.")
     ano <- input$ano
-    bins <- seq(0.8, 2.6, by = 0.1)
+    bins <- seq(0.8, 2.6, by = 0.4)
     data_filtered <- subset(medias_por_ano, Ano == ano)
     pal <- colorBin("YlOrRd", domain = data_filtered$media_ws10, bins = bins)
     labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
@@ -513,7 +513,7 @@ output$map <- renderLeaflet({
   }else if (input$var == "Ws_2..m.s.1."){
     media_ws2 <- as.numeric(medias_por_ano$"Ws_2..m.s.1.")
     ano <- input$ano
-    bins <- seq(0.8, 2, by = 0.1)
+    bins <- seq(0.8, 2, by = 0.2)
     data_filtered <- subset(medias_por_ano, Ano == ano)
     pal <- colorBin("YlOrRd", domain = data_filtered$media_ws2, bins = bins)
     labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
@@ -529,7 +529,7 @@ output$map <- renderLeaflet({
   }else if (input$var == "Ws_gust..m.s.1."){
     media_l <- as.numeric(medias_por_ano$"Ws_gust..m.s.1.")
     ano <- input$ano
-    bins <- seq(6.4, 9.6, by = 0.2)
+    bins <- seq(6.4, 9.6, by = 0.4)
     data_filtered <- subset(medias_por_ano, Ano == ano)
     pal <- colorBin("YlOrRd", domain = data_filtered$media_l, bins = bins)
     labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
@@ -569,7 +569,7 @@ output$map <- renderLeaflet({
     mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
       addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15, 
                  popup = ~Station, radius = 30000, color = ~pal(as.numeric(Sr..Mj.m.2.day.1.)), fillOpacity = 1) %>%
-      addLegend("bottomright", pal = pal, values = ~as.numeric(Sr..Mj.m.2.day.1.), title = expression(paste("Radiação solar (MJ/",m^2,")")), opacity = 1)
+      addLegend("bottomright", pal = pal, values = ~as.numeric(Sr..Mj.m.2.day.1.), title = "Radiação solar (MJ/m^2)", opacity = 1)
     
     mapa
     
