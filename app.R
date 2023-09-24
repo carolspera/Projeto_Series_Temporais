@@ -39,33 +39,52 @@ cidades_mod <- data.frame(coluna1 = cidades$DC_NOME,coluna2 = cidades$SG_ESTADO)
 cidades_mod$coluna1 <- str_to_title(tolower(cidades_mod$coluna1))
 cidades_mod$Cidade_Estado <- paste(cidades_mod$coluna1, cidades_mod$coluna2, sep = "-")
 
+# Traduções das variáveis
+titulos <- list(
+  "Tair_mean..c." = "Temperatura média do ar, em dias sucessivos",
+  "Tair_min..c." = "Temperatura mínima do ar, em dias sucessivos",      
+  "Tair_max..c." = "Temperatura máxima do ar, em dias sucessivos",    
+  "Dew_tmean..c." = "Temperatura do ponto de orvalho média, em dias sucessivos",   
+  "Dew_tmin..c." = "Temperatura do ponto de orvalho mínima, em dias sucessivos",
+  "Dew_tmax..c." = "Temperatura do ponto de orvalho máxima, em dias sucessivos",    
+  "Dry_bulb_t..c." = "Temperatura de bulbo seco, em dias sucessivos",  
+  "Rainfall..mm." = "Precipitação total, em dias sucessivos",      
+  "Patm..mB." = "Pressão atmosférica, em dias sucessivos",
+  "Rh_mean..porc." = "Umidade relativa do ar média, em dias sucessivos",    
+  "Rh_max..porc." = "Umidade relativa do ar máxima, em dias sucessivos",      
+  "Rh_min..porc." = "Umidade relativa do ar mínima, em dias sucessivos",  
+  "Ws_10..m.s.1." = "Velocidade do vento a 10 metros de altura, em dias sucessivos",     
+  "Ws_2..m.s.1." = "Velocidade do vento a 2 metros de altura, em dias sucessivos",       
+  "Ws_gust..m.s.1." = "Rajada de vento, em dias sucessivos",    
+  "Wd..degrees." = "Direção do vento, em dias sucessivos",      
+  "Sr..Mj.m.2.day.1." = "Radiação solar, em dias sucessivos",
+  "Ra..Mj.m.2.day.1." = "Radiação extraterrestre por períodos diários, em dias sucessivos"
+)
+
+legendaS <- list(
+  "Tair_mean..c." = 'Temperatura (°C)',
+  "Tair_min..c." = 'Temperatura (°C)',      
+  "Tair_max..c." = 'Temperatura (°C)',    
+  "Dew_tmean..c." = 'Temperatura (°C)',   
+  "Dew_tmin..c." = 'Temperatura (°C)',
+  "Dew_tmax..c." = 'Temperatura (°C)',    
+  "Dry_bulb_t..c." = 'Temperatura (°C)',  
+  "Rainfall..mm." = 'Precipitação (mm)',     
+  "Patm..mB." = 'Pressão atmosférica (mB)',       
+  "Rh_mean..porc." = 'Umidade (%)',    
+  "Rh_max..porc." = 'Umidade (%)',     
+  "Rh_min..porc." = 'Umidade (%)',  
+  "Ws_10..m.s.1." = 'Velocidade do vento (m/s)',    
+  "Ws_2..m.s.1." = 'Velocidade do vento (m/s)',       
+  "Ws_gust..m.s.1." = 'Velocidade do vento (m/s)',    
+  "Wd..degrees." = 'Direção do vento (°)',      
+  "Sr..Mj.m.2.day.1." = expression(paste("Radiação solar (MJ/",m^2,")")),
+  "Ra..Mj.m.2.day.1." = expression(paste("Radiação solar (MJ/",m^2,")"))
+)
+
+
 # Variáveis
 var <- names(dados)
-
-# Função que calcula a média de cada variável por estação
-calcular_media_por_estacao <- function(variavel, data_inicio, data_fim, dados) {
-  # Filtrar os dados de acordo com a data de início e fim
-  mascara <- (data_inicio <= dados$Date) & (dados$Date <= data_fim)
-  dados_corte <- dados[mascara,]
-  
-  # Definir uma função para calcular a média ignorando NA
-  mean_na <- function(x) mean(x, na.rm = TRUE)
-  
-  # Calcular a média da variável para cada estação
-  media_por_estacao <- aggregate(x = dados_corte[, variavel], 
-                                 by = list(dados_corte$Station), 
-                                 FUN = mean_na)
-  
-  # Adicionar as colunas de latitude e longitude
-  media_por_estacao$Latitude <- c("-15.78944","-3.10719","-30.05","-30.05361","-13.01667","-23.48333")
-  media_por_estacao$Longitude <- c("-47.92583","-60.01639","-51.16667","-51.17472","-38.51667","-46.61667")
-  
-  # Renomear as colunas para ficar mais informativo
-  colnames(media_por_estacao) <- c("Estacao", paste("Media", variavel, sep = "_"), "Latitude", "Longitude")
-  
-  return(media_por_estacao)
-}
-
 
 ui <- fluidPage(
   navbarPage(theme = shinytheme("flatly"), collapsible = TRUE,
@@ -77,18 +96,30 @@ ui <- fluidPage(
         tabPanel("Média móvel",
           sidebarLayout(
             sidebarPanel(
-              numericInput("k", "Período (dias):", value = 30, min = 0),
-              selectInput("var", "Selecione a variável:", var, selected = var[2]),
-              selectInput("est", "Selecione a estação:", estacoes),
-              dateInput("data_i", "Data de início", "2015-01-01"),
-              dateInput("data_f", "Data de fim", "2016-01-01")
+              numericInput("mediamovel_k", "Período (dias):", value = 30, min = 0),
+              selectInput("mediamovel_var", "Selecione a variável:", var, selected = var[2]),
+              selectInput("mediamovel_est", "Selecione a estação:", estacoes),
+              dateInput("mediamovel_data_i", "Data de início", "2015-01-01"),
+              dateInput("mediamovel_data_f", "Data de fim", "2016-01-01")
             ),
             mainPanel(
                 plotOutput("graph_media_movel")
             )
           )
         ),
-        tabPanel("Sazonaliade")
+        tabPanel("Gráfico sazonal",
+          sidebarLayout(
+            sidebarPanel(
+              selectInput("sazonalidade_var", "Selecione a variável:", var, selected = var[2]),
+              selectInput("sazonalidade_est", "Selecione a estação:", estacoes),
+              dateInput("sazonalidade_data_i", "Data de início", "2013-01-01"),
+              dateInput("sazonalidade_data_f", "Data de fim", "2020-01-01")
+            ),
+            mainPanel(
+                plotOutput("graph_sazonalidade")
+            )
+          )
+        )
       )
     ),
     tabPanel("Modelagem Preditiva"),
@@ -154,19 +185,49 @@ ui <- fluidPage(
 # Server logic
 server <- function(input, output) {
   output$graph_media_movel <- renderPlot({
+    data_i = input$mediamovel_data_i
+    data_f = input$mediamovel_data_f
+    estacao = input$mediamovel_est
+    k = input$mediamovel_k
+    variavel = input$mediamovel_var
 
-    mascara = (dados$Date >= as.Date(input$data_i)) &
-        (dados$Date <= as.Date(input$data_f)) &
-        (dados$Station_code == input$est)
+    mascara = (dados$Date >= as.Date(data_i)) & (dados$Date <= as.Date(data_f)) & (dados$Station_code == estacao)
 
     d <- dados[mascara,]
-    d <- data.frame(x=d$Date, y=d[,input$var])
+    d <- data.frame(x=d$Date, y=d[,variavel])
 
     ggplot(d, aes(x = x, y = y)) +
       geom_line() +
-      geom_line(aes(y = rollmean(y, k = input$k, na.pad=TRUE), color="#FF0000")) +
-      labs(x = "Data", y = input$var, color="Média móvel") +
+      geom_line(aes(y = rollmean(y, k = k, na.pad=TRUE), color="#FF0000")) +
+      labs(x = "Data", y = variavel, color="Média móvel") +
       theme(legend.position = "none")
+  })
+
+  output$graph_sazonalidade <- renderPlot({
+    base = dados
+    estacao = input$sazonalidade_est
+    variavel = input$sazonalidade_var
+    Data_ini = input$sazonalidade_data_i
+    Data_fim = input$sazonalidade_data_f
+
+    filtro <- filter(base, Station_code == toString(estacao) & Date >= toString(Data_ini) & Date <= toString(Data_fim) )
+    # View(filtro)
+    dados = tsibble(
+      data = ymd(filtro$Date),
+      y = filtro[[variavel]],
+      index = data
+    )
+    G2 =
+      dados %>%
+      fill_gaps(data,y = mean(y),.full=TRUE) %>%
+      gg_season(y, labels = 'both',period='year') +
+      #gg_season(fill_gaps(dados,y = mean(y),.full=TRUE), labels = 'both') +
+      labs(
+        y = legendaS[[variavel]],
+        x = 'Tempo (em meses)',
+        title = titulos[[variavel]]
+      );
+    G2
   })
 }
 
