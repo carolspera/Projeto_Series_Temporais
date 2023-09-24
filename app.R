@@ -30,24 +30,73 @@ library(zoo)
 dados <- read.csv("dados2011_2022.csv", sep=",", header = TRUE)
 dados$Date = as.Date(dados$Date)
 
-
-estacoes <- unique(dados$Station_code)
+est_nomes <- data.frame(codigo = unique(dados$Station_code))
 cidades <- read.csv("CatalogoEstaçõesAutomáticas.csv", sep=";", header = TRUE)
 
 # Criando uma coluna com o nome da cidade e estado
-cidades_mod <- data.frame(coluna1 = cidades$DC_NOME,coluna2 = cidades$SG_ESTADO)
+cidades_mod <- data.frame(coluna1 = cidades$DC_NOME,coluna2 = cidades$SG_ESTADO, codigo = cidades$CD_ESTACAO)
 cidades_mod$coluna1 <- str_to_title(tolower(cidades_mod$coluna1))
-cidades_mod$Cidade_Estado <- paste(cidades_mod$coluna1, cidades_mod$coluna2, sep = "-")
+cidades_mod$estacao <- paste(cidades_mod$coluna1, cidades_mod$coluna2, sep = "-")
 
+cidades_mod = cidades_mod[,c("codigo", "estacao")]
 
-nomes = data.frame(variavel = c("Tair_mean..c.", "Tair_min..c.", "Tair_max..c.", "Dew_tmean..c.", "Dew_tmin..c.", "Dew_tmax..c.", "Dry_bulb_t..c.", "Rainfall..mm.", "Patm..mB.", "Rh_mean..porc.", "Rh_max..porc.", "Rh_min..porc.", "Ws_10..m.s.1.", "Ws_2..m.s.1.", "Ws_gust..m.s.1.", "Wd..degrees.", "Sr..Mj.m.2.day.1.", "Ra..Mj.m.2.day.1."),
+est_nomes = merge(est_nomes, cidades_mod, by = "codigo")
+
+# Manipulação dos nomes das estações
+epc = function(e) filter(est_nomes, estacao == e)$codigo # converte estacao para codigo
+cpe = function(c) filter(est_nomes, codigo == c)$estacao # converte codigo para estacao
+
+# Manipulação dos nomes das variáveis
+var_nomes = data.frame(variavel = c("Tair_mean..c.", "Tair_min..c.", "Tair_max..c.", "Dew_tmean..c.", "Dew_tmin..c.", "Dew_tmax..c.", "Dry_bulb_t..c.", "Rainfall..mm.", "Patm..mB.", "Rh_mean..porc.", "Rh_max..porc.", "Rh_min..porc.", "Ws_10..m.s.1.", "Ws_2..m.s.1.", "Ws_gust..m.s.1.", "Wd..degrees.", "Sr..Mj.m.2.day.1.", "Ra..Mj.m.2.day.1."),
                    titulo = c("Temperatura média do ar", "Temperatura mínima do ar", "Temperatura máxima do ar", "Temperatura do ponto de orvalho média", "Temperatura do ponto de orvalho mínima", "Temperatura do ponto de orvalho máxima", "Temperatura de bulbo seco", "Precipitação total", "Pressão atmosférica", "Umidade relativa do ar média", "Umidade relativa do ar máxima", "Umidade relativa do ar mínima", "Velocidade do vento a 10 metros de altura", "Velocidade do vento a 2 metros de altura", "Rajada de vento", "Direção do vento", "Radiação solar", "Radiação extraterrestre por períodos diários"),
                    legenda = c('Temperatura (°C)', 'Temperatura (°C)', 'Temperatura (°C)', 'Temperatura (°C)', 'Temperatura (°C)', 'Temperatura (°C)', 'Temperatura (°C)', 'Precipitação (mm)', 'Pressão atmosférica (mB)', 'Umidade (%)', 'Umidade (%)', 'Umidade (%)', 'Velocidade do vento (m/s)', 'Velocidade do vento (m/s)', 'Velocidade do vento (m/s)', 'Direção do vento (°)', "Radiação solar (MJ/m^2)", "Radiação solar (MJ/m^2)"))
 
-vpt = function(v) filter(nomes, variavel == v)$titulo # converte variável para título
-vpl = function(v) filter(nomes, variavel == v)$legenda # converte variável para legenda
-tpv = function(t) filter(nomes, titulo == t)$variavel # converte título para variável
+vpt = function(v) filter(var_nomes, variavel == v)$titulo # converte variável para título
+vpl = function(v) filter(var_nomes, variavel == v)$legenda # converte variável para legenda
+tpv = function(t) filter(var_nomes, titulo == t)$variavel # converte título para variável
 
+
+titulos <- list(
+    "Tair_mean..c." = "Temperatura média do ar, em dias sucessivos",
+    "Tair_min..c." = "Temperatura mínima do ar, em dias sucessivos",      
+    "Tair_max..c." = "Temperatura máxima do ar, em dias sucessivos",    
+    "Dew_tmean..c." = "Temperatura do ponto de orvalho média, em dias sucessivos",   
+    "Dew_tmin..c." = "Temperatura do ponto de orvalho mínima, em dias sucessivos",
+    "Dew_tmax..c." = "Temperatura do ponto de orvalho máxima, em dias sucessivos",    
+    "Dry_bulb_t..c." = "Temperatura de bulbo seco, em dias sucessivos",  
+    "Rainfall..mm." = "Precipitação total, em dias sucessivos",      
+    "Patm..mB." = "Pressão atmosférica, em dias sucessivos",
+    "Rh_mean..porc." = "Umidade relativa do ar média, em dias sucessivos",    
+    "Rh_max..porc." = "Umidade relativa do ar máxima, em dias sucessivos",      
+    "Rh_min..porc." = "Umidade relativa do ar mínima, em dias sucessivos",  
+    "Ws_10..m.s.1." = "Velocidade do vento a 10 metros de altura, em dias sucessivos",     
+    "Ws_2..m.s.1." = "Velocidade do vento a 2 metros de altura, em dias sucessivos",       
+    "Ws_gust..m.s.1." = "Rajada de vento, em dias sucessivos",    
+    "Wd..degrees." = "Direção do vento, em dias sucessivos",      
+    "Sr..Mj.m.2.day.1." = "Radiação solar, em dias sucessivos",
+    "Ra..Mj.m.2.day.1." = "Radiação extraterrestre por períodos diários, em dias sucessivos"
+)
+
+legendaS <- list(
+    "Tair_mean..c." = 'Temperatura (°C)',
+    "Tair_min..c." = 'Temperatura (°C)',      
+    "Tair_max..c." = 'Temperatura (°C)',    
+    "Dew_tmean..c." = 'Temperatura (°C)',   
+    "Dew_tmin..c." = 'Temperatura (°C)',
+    "Dew_tmax..c." = 'Temperatura (°C)',    
+    "Dry_bulb_t..c." = 'Temperatura (°C)',  
+    "Rainfall..mm." = 'Precipitação (mm)',     
+    "Patm..mB." = 'Pressão atmosférica (mB)',       
+    "Rh_mean..porc." = 'Umidade (%)',    
+    "Rh_max..porc." = 'Umidade (%)',     
+    "Rh_min..porc." = 'Umidade (%)',  
+    "Ws_10..m.s.1." = 'Velocidade do vento (m/s)',    
+    "Ws_2..m.s.1." = 'Velocidade do vento (m/s)',       
+    "Ws_gust..m.s.1." = 'Velocidade do vento (m/s)',    
+    "Wd..degrees." = 'Direção do vento (°)',      
+    "Sr..Mj.m.2.day.1." = expression(paste("Radiação solar (MJ/",m^2,")")),
+    "Ra..Mj.m.2.day.1." = expression(paste("Radiação solar (MJ/",m^2,")"))
+)
 
 # Função que calcula as médias das variáveis por ano e armazena em um dataframe
 calcular_media_por_ano <- function(variaveis, dados) {
@@ -96,9 +145,6 @@ variaveis <- c("Tair_mean..c.", "Tair_min..c.", "Tair_max..c.","Dew_tmean..c.", 
 medias_por_ano <- calcular_media_por_ano(variaveis, dados)
 medias_por_ano <- replace(medias_por_ano, is.na(medias_por_ano),  -3.10719)
 
-# Variáveis
-var <- names(dados)
-
 
 # UI
 ui <- fluidPage(
@@ -130,8 +176,8 @@ ui <- fluidPage(
                     sidebarLayout(
                         sidebarPanel(
                             numericInput("mediamovel_k", h5("Número de observações utilizadas na média:"), value = 30, min = 0),
-                            selectInput("mediamovel_var", h5("Selecione a variável:"), nomes$titulo, selected = var[2]),
-                            selectInput("mediamovel_est", h5("Selecione a estação:"), estacoes),
+                            selectInput("mediamovel_var", h5("Selecione a variável:"), var_nomes$titulo),
+                            selectInput("mediamovel_est", h5("Selecione a estação:"), est_nomes$estacao),
                             dateInput("mediamovel_data_i", h5("Data de início"), "2015-01-01"),
                             dateInput("mediamovel_data_f", h5("Data de fim"), "2016-01-01"),
                             tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
@@ -143,8 +189,8 @@ ui <- fluidPage(
                     sidebarLayout(
                         sidebarPanel(
                             selectInput("sazonalidade_periodo", h5("Selecione o período:"), c("week","month","year"), selected = "year"),
-                            selectInput("sazonalidade_var", h5("Selecione a variável:"), nomes$titulo, selected = var[2]),
-                            selectInput("sazonalidade_est", h5("Selecione a estação:"), estacoes),
+                            selectInput("sazonalidade_var", h5("Selecione a variável:"), var_nomes$titulo),
+                            selectInput("sazonalidade_est", h5("Selecione a estação:"), est_nomes$estacao),
                             dateInput("sazonalidade_data_i", h5("Data de início"), "2013-01-01"),
                             dateInput("sazonalidade_data_f", h5("Data de fim"), "2020-01-01"),
                             tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
@@ -160,7 +206,7 @@ ui <- fluidPage(
             sidebarLayout(
                 sidebarPanel(
                     selectInput("modelagem_var", h5("Selecione a variável:"), variaveis),
-                    selectInput("modelagem_est", h5("Selecione a(s) estação(ões) meteorológica(s)"), cidades_mod$Cidade_Estado, multiple = TRUE),
+                    selectInput("modelagem_est", h5("Selecione a(s) estação(ões) meteorológica(s)"), cidades_mod$estacao, multiple = TRUE),
                     selectInput("modelagem_modelo", h5("Selecione o modelo:"), c("ARMA", "ARIMA", "SARIMA")),
                     tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
                 ),
@@ -233,7 +279,7 @@ server <- function(input, output){
     output$graph_media_movel <- renderPlot({
         data_i = input$mediamovel_data_i
         data_f = input$mediamovel_data_f
-        estacao = input$mediamovel_est
+        estacao = epc(input$mediamovel_est)
         k = input$mediamovel_k
         variavel = tpv(input$mediamovel_var)
 
@@ -254,7 +300,7 @@ server <- function(input, output){
 
     output$graph_sazonalidade <- renderPlot({
         base = dados
-        estacao = input$sazonalidade_est
+        estacao = epc(input$sazonalidade_est)
         variavel = tpv(input$sazonalidade_var)
         Data_ini = input$sazonalidade_data_i
         Data_fim = input$sazonalidade_data_f
