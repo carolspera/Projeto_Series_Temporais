@@ -99,18 +99,21 @@ calcular_media_por_ano <- function(variaveis, dados) {
       dados_filtrados <- subset(dados, Ano == ano & Station == estacao)
       
       if (nrow(dados_filtrados) > 0) {
-        media_ano_estacao <- c(Ano = ano,
+        media_ano_estacao <- c(Ano = as.numeric(ano),
                                Station = estacao,
-                               Latitude = unique(dados_filtrados$Latitude..degrees.),
-                               Longitude = unique(dados_filtrados$Longitude..degrees.))
+                               Latitude = as.numeric(unique(dados_filtrados$Latitude..degrees.)),
+                               Longitude = as.numeric(unique(dados_filtrados$Longitude..degrees.)))
         
         for (variavel in variaveis) {
           media_ano_estacao[paste("Media", variavel, sep = "_")] <- mean(dados_filtrados[[variavel]], na.rm = TRUE)
         }
         
         medias_por_ano <- rbind(medias_por_ano, media_ano_estacao)
-        colnames(medias_por_ano) <- c("Ano", "Station", "Latitude..degrees.", "Longitude..degrees.", "Tair_mean..c.",
-                                      "Tair_min..c.","Tair_max..c.","Dew_tmin..c.","Dew_tmax..c.","Dry_bulb_t..c.","Rainfall..mm.")
+        colnames(medias_por_ano) <- c("Ano", "Station", "Latitude..degrees.", "Longitude..degrees.", "Tair_mean..c.", "Tair_min..c.", "Tair_max..c.",
+                                      "Dew_tmean..c.", "Dew_tmin..c.", "Dew_tmax..c.", "Dry_bulb_t..c.", 
+                                      "Rainfall..mm.", "Rh_mean..porc.", "Rh_max..porc.", 
+                                      "Rh_min..porc.", "Ws_10..m.s.1.", "Ws_2..m.s.1.", "Ws_gust..m.s.1.", 
+                                      "Wd..degrees.", "Sr..Mj.m.2.day.1.") #"Ra..Mj.m.2.day.1." e "Patm..mB."
         
       }
     }
@@ -118,7 +121,9 @@ calcular_media_por_ano <- function(variaveis, dados) {
   
   return(medias_por_ano)
 }
-variaveis <- c("Tair_mean..c.", "Tair_min..c.","Tair_max..c.","Dew_tmin..c.","Dew_tmax..c.","Dry_bulb_t..c.","Rainfall..mm.")
+variaveis <- c("Tair_mean..c.", "Tair_min..c.", "Tair_max..c.","Dew_tmean..c.", "Dew_tmin..c.", "Dew_tmax..c.", "Dry_bulb_t..c.", 
+               "Rainfall..mm.", "Rh_mean..porc.", "Rh_max..porc.", "Rh_min..porc.", "Ws_10..m.s.1.", "Ws_2..m.s.1.", "Ws_gust..m.s.1.", 
+               "Wd..degrees.", "Sr..Mj.m.2.day.1.") #"Ra..Mj.m.2.day.1." e "Patm..mB."
 medias_por_ano <- calcular_media_por_ano(variaveis, dados)
 medias_por_ano <- replace(medias_por_ano, is.na(medias_por_ano),  -3.10719)
 
@@ -314,7 +319,7 @@ output$map <- renderLeaflet({
   if (input$var == "Tair_mean..c."){
     media_temp_ar <- as.numeric(medias_por_ano$"Tair_mean..c.")
     ano <- input$ano
-    bins <- c(16,18,20,22,24,26,28,30)
+    bins <- seq(16, 30, by = 2)
     data_filtered <- subset(medias_por_ano, Ano == ano)
     pal <- colorBin("YlOrRd", domain = data_filtered$media_temp_ar, bins = bins)
     labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
@@ -332,7 +337,7 @@ output$map <- renderLeaflet({
     media_temp_ar_min <- as.numeric(medias_por_ano$"Tair_min..c.")
     ano <- as.numeric(medias_por_ano$Ano)
     ano <- input$ano
-    bins <- c(14,16,18,20,22,24,26,28,30)
+    bins <- seq(14, 30, by = 2)
     data_filtered <- subset(medias_por_ano, Ano == ano)
     pal <- colorBin("YlOrRd", domain = data_filtered$media_temp_ar_min, bins = bins)
     labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
@@ -348,7 +353,7 @@ output$map <- renderLeaflet({
   }else if (input$var == "Tair_max..c."){
     media_temp_ar_max <- as.numeric(medias_por_ano$"Tair_max..c.")
     ano <- input$ano
-    bins <- c(16,18,20,22,24,26,28,30,32,34)
+    bins <- seq(16, 34, by = 2)
     data_filtered <- subset(medias_por_ano, Ano == ano)
     pal <- colorBin("YlOrRd", domain = data_filtered$media_temp_ar_max, bins = bins)
     labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
@@ -360,11 +365,27 @@ output$map <- renderLeaflet({
     
     mapa
     
+    #Mapa para Dew_tmean..c.        
+  }else if (input$var == "Dew_tmean..c."){
+    media_dew_m <- as.numeric(medias_por_ano$"Dew_tmean..c.")
+    ano <- input$ano
+    bins <- seq(10, 24, by = 2)
+    data_filtered <- subset(medias_por_ano, Ano == ano)
+    pal <- colorBin("YlOrRd", domain = data_filtered$media_dew_m, bins = bins)
+    labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
+                      data_filtered$Station, data_filtered$media_dew_m) %>% lapply(htmltools::HTML)
+    mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
+      addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15, 
+                 popup = ~Station, radius = 30000, color = ~pal(as.numeric(Dew_tmean..c.)), fillOpacity = 1) %>%
+      addLegend("bottomright", pal = pal, values = ~as.numeric(Dew_tmean..c.), title = "Temperatura do ponto de orvalho média (°C)", opacity = 1)
+    
+    mapa
+    
     #Mapa para Dew_tmin..c.        
   }else if (input$var == "Dew_tmin..c."){
     media_dew_min <- as.numeric(medias_por_ano$"Dew_tmin..c.")
     ano <- input$ano
-    bins <- c(8,10,12,14,16,18,20,22)
+    bins <- seq(8, 22, by = 2)
     data_filtered <- subset(medias_por_ano, Ano == ano)
     pal <- colorBin("YlOrRd", domain = data_filtered$media_dew_min, bins = bins)
     labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
@@ -380,7 +401,7 @@ output$map <- renderLeaflet({
   }else if (input$var == "Dew_tmax..c."){
     media_dew_max <- as.numeric(medias_por_ano$"Dew_tmax..c.")
     ano <- input$ano
-    bins <- c(12,14,16,18,20,22,24,26)
+    bins <- seq(12, 26, by = 2)
     data_filtered <- subset(medias_por_ano, Ano == ano)
     pal <- colorBin("YlOrRd", domain = data_filtered$media_dew_max, bins = bins)
     labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
@@ -396,7 +417,7 @@ output$map <- renderLeaflet({
   }else if (input$var == "Dry_bulb_t..c."){
     media_dry_bulb <- as.numeric(medias_por_ano$"Dry_bulb_t..c.")
     ano <- input$ano
-    bins <- c(16,18,20,22,24,26,28,30)
+    bins <- seq(16, 30, by = 2)
     data_filtered <- subset(medias_por_ano, Ano == ano)
     pal <- colorBin("YlOrRd", domain = data_filtered$media_dry_bulb, bins = bins)
     labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
@@ -412,7 +433,7 @@ output$map <- renderLeaflet({
   }else if (input$var == "Rainfall..mm."){
     media_rainfall <- as.numeric(medias_por_ano$"Rainfall..mm.")
     ano <- input$ano
-    bins <- c(0,2,4,6,8,10)
+    bins <- seq(0, 10, by = 2)
     data_filtered <- subset(medias_por_ano, Ano == ano)
     pal <- colorBin("YlOrRd", domain = data_filtered$media_rainfall, bins = bins)
     labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
@@ -423,6 +444,150 @@ output$map <- renderLeaflet({
       addLegend("bottomright", pal = pal, values = ~as.numeric(Rainfall..mm.), title = "Precipitação total (mm)", opacity = 1)
     
     mapa
+    
+    #Mapa para Rh_mean..porc.        
+  }else if (input$var == "Rh_mean..porc."){
+    media_urm <- as.numeric(medias_por_ano$"Rh_mean..porc.")
+    ano <- input$ano
+    bins <- seq(60, 82, by = 2)
+    data_filtered <- subset(medias_por_ano, Ano == ano)
+    pal <- colorBin("YlOrRd", domain = data_filtered$media_urm, bins = bins)
+    labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
+                      data_filtered$Station, data_filtered$media_urm) %>% lapply(htmltools::HTML)
+    mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
+      addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15, 
+                 popup = ~Station, radius = 30000, color = ~pal(as.numeric(Rh_mean..porc.)), fillOpacity = 1) %>%
+      addLegend("bottomright", pal = pal, values = ~as.numeric(Rh_mean..porc.), title = "Umidade relativa média (%)", opacity = 1)
+    
+    mapa
+    
+    #Mapa para Rh_max..porc.        
+  }else if (input$var == "Rh_max..porc."){
+    media_urma <- as.numeric(medias_por_ano$"Rh_max..porc.")
+    ano <- input$ano
+    bins <- seq(80, 98, by = 2)
+    data_filtered <- subset(medias_por_ano, Ano == ano)
+    pal <- colorBin("YlOrRd", domain = data_filtered$media_urma, bins = bins)
+    labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
+                      data_filtered$Station, data_filtered$media_urma) %>% lapply(htmltools::HTML)
+    mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
+      addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15, 
+                 popup = ~Station, radius = 30000, color = ~pal(as.numeric(Rh_max..porc.)), fillOpacity = 1) %>%
+      addLegend("bottomright", pal = pal, values = ~as.numeric(Rh_max..porc.), title = "Umidade relativa máxima (%)", opacity = 1)
+    
+    mapa
+    
+    #Mapa para Rh_min..porc.        
+  }else if (input$var == "Rh_min..porc."){
+    media_urmi <- as.numeric(medias_por_ano$"Rh_min..porc.")
+    ano <- input$ano
+    bins <- seq(36, 66, by = 2)
+    data_filtered <- subset(medias_por_ano, Ano == ano)
+    pal <- colorBin("YlOrRd", domain = data_filtered$media_urmi, bins = bins)
+    labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
+                      data_filtered$Station, data_filtered$media_urmi) %>% lapply(htmltools::HTML)
+    mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
+      addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15, 
+                 popup = ~Station, radius = 30000, color = ~pal(as.numeric(Rh_min..porc.)), fillOpacity = 1) %>%
+      addLegend("bottomright", pal = pal, values = ~as.numeric(Rh_min..porc.), title = "Umidade relativa mínima (%)", opacity = 1)
+    
+    mapa
+    
+    #Mapa para Ws_10..m.s.1.        
+  }else if (input$var == "Ws_10..m.s.1."){
+    media_ws10 <- as.numeric(medias_por_ano$"Ws_10..m.s.1.")
+    ano <- input$ano
+    bins <- seq(0.8, 2.6, by = 0.1)
+    data_filtered <- subset(medias_por_ano, Ano == ano)
+    pal <- colorBin("YlOrRd", domain = data_filtered$media_ws10, bins = bins)
+    labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
+                      data_filtered$Station, data_filtered$media_ws10) %>% lapply(htmltools::HTML)
+    mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
+      addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15, 
+                 popup = ~Station, radius = 30000, color = ~pal(as.numeric(Ws_10..m.s.1.)), fillOpacity = 1) %>%
+      addLegend("bottomright", pal = pal, values = ~as.numeric(Ws_10..m.s.1.), title = "Velocidade do vento a 10 metros de altura (m/s)", opacity = 1)
+    
+    mapa
+    
+    #Mapa para Ws_2..m.s.1.        
+  }else if (input$var == "Ws_2..m.s.1."){
+    media_ws2 <- as.numeric(medias_por_ano$"Ws_2..m.s.1.")
+    ano <- input$ano
+    bins <- seq(0.8, 2, by = 0.1)
+    data_filtered <- subset(medias_por_ano, Ano == ano)
+    pal <- colorBin("YlOrRd", domain = data_filtered$media_ws2, bins = bins)
+    labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
+                      data_filtered$Station, data_filtered$media_ws2) %>% lapply(htmltools::HTML)
+    mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
+      addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15, 
+                 popup = ~Station, radius = 30000, color = ~pal(as.numeric(Ws_2..m.s.1.)), fillOpacity = 1) %>%
+      addLegend("bottomright", pal = pal, values = ~as.numeric(Ws_2..m.s.1.), title = "Velocidade do vento a 2 metros de altura (m/s)", opacity = 1)
+    
+    mapa
+    
+    #Mapa para Ws_gust..m.s.1.        
+  }else if (input$var == "Ws_gust..m.s.1."){
+    media_l <- as.numeric(medias_por_ano$"Ws_gust..m.s.1.")
+    ano <- input$ano
+    bins <- seq(6.4, 9.6, by = 0.2)
+    data_filtered <- subset(medias_por_ano, Ano == ano)
+    pal <- colorBin("YlOrRd", domain = data_filtered$media_l, bins = bins)
+    labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
+                      data_filtered$Station, data_filtered$media_l) %>% lapply(htmltools::HTML)
+    mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
+      addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15, 
+                 popup = ~Station, radius = 30000, color = ~pal(as.numeric(Ws_gust..m.s.1.)), fillOpacity = 1) %>%
+      addLegend("bottomright", pal = pal, values = ~as.numeric(Ws_gust..m.s.1.), title = "Lufada - Rajada de vento (m/s)", opacity = 1)
+    
+    mapa
+    
+    #Mapa para Wd..degrees.        
+  }else if (input$var == "Wd..degrees."){
+    media_l <- as.numeric(medias_por_ano$"Wd..degrees.")
+    ano <- input$ano
+    bins <- seq(106, 166, by = 10)
+    data_filtered <- subset(medias_por_ano, Ano == ano)
+    pal <- colorBin("YlOrRd", domain = data_filtered$media_l, bins = bins)
+    labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
+                      data_filtered$Station, data_filtered$media_l) %>% lapply(htmltools::HTML)
+    mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
+      addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15, 
+                 popup = ~Station, radius = 30000, color = ~pal(as.numeric(Wd..degrees.)), fillOpacity = 1) %>%
+      addLegend("bottomright", pal = pal, values = ~as.numeric(Wd..degrees.), title = "Direção do vento (°C)", opacity = 1)
+    
+    mapa
+    
+    #Mapa para Sr..Mj.m.2.day.1.        
+  }else if (input$var == "Sr..Mj.m.2.day.1."){
+    media_sr <- as.numeric(medias_por_ano$"Sr..Mj.m.2.day.1.")
+    ano <- input$ano
+    bins <- seq(12, 20, by = 2)
+    data_filtered <- subset(medias_por_ano, Ano == ano)
+    pal <- colorBin("YlOrRd", domain = data_filtered$media_sr, bins = bins)
+    labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
+                      data_filtered$Station, data_filtered$media_sr) %>% lapply(htmltools::HTML)
+    mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
+      addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15, 
+                 popup = ~Station, radius = 30000, color = ~pal(as.numeric(Sr..Mj.m.2.day.1.)), fillOpacity = 1) %>%
+      addLegend("bottomright", pal = pal, values = ~as.numeric(Sr..Mj.m.2.day.1.), title = expression(paste("Radiação solar (MJ/",m^2,")")), opacity = 1)
+    
+    mapa
+    
+  #   #Mapa para Ra..Mj.m.2.day.1.        
+  # }else if (input$var == "Ra..Mj.m.2.day.1."){
+  #   media_ra <- as.numeric(medias_por_ano$"Ra..Mj.m.2.day.1.")
+  #   ano <- input$ano
+  #   bins <- seq(12, 20, by = 2)
+  #   data_filtered <- subset(medias_por_ano, Ano == ano)
+  #   pal <- colorBin("YlOrRd", domain = data_filtered$media_ra, bins = bins)
+  #   labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
+  #                     data_filtered$Station, data_filtered$media_ra) %>% lapply(htmltools::HTML)
+  #   mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
+  #     addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15, 
+  #                popup = ~Station, radius = 30000, color = ~pal(as.numeric(Ra..Mj.m.2.day.1.)), fillOpacity = 1) %>%
+  #     addLegend("bottomright", pal = pal, values = ~as.numeric(Ra..Mj.m.2.day.1.), title = expression(paste("Radiação solar (MJ/",m^2,")")), opacity = 1)
+  #   
+  #   mapa
     
   }
 })
