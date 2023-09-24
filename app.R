@@ -186,24 +186,7 @@ ui <- fluidPage(
         ),
         
         ## Modelagem preditiva
-        tabPanel("Modelagem preditiva",
-                div(class="outer",
-                tags$head(includeCSS("styles.css")),
-            
-            absolutePanel(id = "controls", class = "panel panel-default",
-                        top = 140, left = 55, width = 400, fixed=TRUE,
-                        draggable = F, height = "auto",
-                        h3("Modelagem preditiva"),
-                    
-                selectInput("var", "Var:", label = h4("Selecione a variável:"), choices = variaveis),
-                selectInput("est", "Escolha a(s) estação(ões) meteorológica(s)", cidades_mod$Cidade_Estado, multiple = TRUE),
-                selectInput("modelo", "Modelo:", label = h4("Selecione o modelo:"), choices = c("ARMA", "ARIMA", "SARIMA")),
-                tags$div(id="cite", h6('Dados retirados do portal INMET.')))
-            # column(2, offset = 3,
-            #        mainPanel(
-            #          plotlyOutput("graph_modelagem_preditiva")))
-            )
-        ),
+        tabPanel("Modelagem preditiva"),
 
         ## Sobre o site
         tabPanel("Sobre o site",
