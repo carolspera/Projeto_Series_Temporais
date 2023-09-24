@@ -83,16 +83,20 @@ ui <- fluidPage(
     windowTitle = "Meteorologia INMET",
 
     tabPanel("Análise Temporal",
-      sidebarLayout(
-        sidebarPanel(
-          numericInput("k", "Período (dias):", value = 30, min = 0),
-          selectInput("var", "Selecione a variável:", var),
-          selectInput("est", "Selecione a estação:", estacoes),
-          dateInput("data_i", "Data de início", "2015-01-01"),
-          dateInput("data_f", "Data de fim", "2016-01-01")
-        ),
-        mainPanel(
-            plotOutput("graph_analise_temporal")
+      navlistPanel(widths=c(2, 10),
+        tabPanel("Média móvel",
+          sidebarLayout(
+            sidebarPanel(
+              numericInput("k", "Período (dias):", value = 30, min = 0),
+              selectInput("var", "Selecione a variável:", var),
+              selectInput("est", "Selecione a estação:", estacoes),
+              dateInput("data_i", "Data de início", "2015-01-01"),
+              dateInput("data_f", "Data de fim", "2016-01-01")
+            ),
+            mainPanel(
+                plotOutput("graph_analise_temporal")
+            )
+          )
         )
       )
     )
