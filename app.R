@@ -335,24 +335,6 @@ server <- function(input, output){
   
   ## Análise geográfica
   output$map <- renderLeaflet({
-    var_name <- switch(input$var,
-                       "Tair_mean..c." = "media_temp_ar",
-                       "Tair_min..c." = "media_temp_ar_min",
-                       "Tair_max..c." = "media_temp_ar_max",
-                       "Dew_tmean..c." = "media_dew_m",
-                       "Dew_tmin..c." = "media_dew_min",
-                       "Dew_tmax..c." = "media_dew_max",
-                       "Dry_bulb_t..c." = "media_dry_bulb",
-                       "Rainfall..mm." = "media_rainfall",
-                       "Rh_mean..porc." = "media_urm",
-                       "Rh_max..porc." = "media_urma",
-                       "Rh_min..porc." = "media_urmi",
-                       "Ws_10..m.s.1." = "media_ws10",
-                       "Ws_2..m.s.1." = "media_ws2",
-                       "Ws_gust..m.s.1." = "media_l",
-                       "Wd..degrees." = "media_l",
-                       "Sr..Mj.m.2.day.1." = "media_sr"
-    )
 
     #Mapa para Temperatura média do ar
     if (input$var == "Temperatura média do ar"){
