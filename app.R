@@ -179,8 +179,7 @@ ui <- fluidPage(
              ## Análise temporal
              tabPanel("Análise Temporal",
                       navlistPanel(widths=c(2, 10),
-                                   
-                                   tabPanel("Média móvel",
+                                   tabPanel("Média móvel", icon = icon("chart-line"),
                                             sidebarLayout(
                                               sidebarPanel(width = 3,
                                                 numericInput("mediamovel_k", h5("Número de observações utilizadas na média:"), value = 30, min = 0),
@@ -193,7 +192,7 @@ ui <- fluidPage(
                                               mainPanel(plotOutput("graph_media_movel"))
                                             )
                                    ),
-                                   tabPanel("Gráfico sazonal",
+                                   tabPanel("Gráfico sazonal", icon = icon("chart-line"), 
                                             sidebarLayout(
                                               sidebarPanel(width = 3,
                                                 selectInput("sazonalidade_periodo", h5("Selecione o período:"), c("week","month","year"), selected = "year"),
