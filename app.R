@@ -86,21 +86,21 @@ titulos <- list(
 )
 
 legendaS <- list(
-  "Tair_mean..c." = 'Temperatura (°C)',
-  "Tair_min..c." = 'Temperatura (°C)',      
-  "Tair_max..c." = 'Temperatura (°C)',    
-  "Dew_tmean..c." = 'Temperatura (°C)',   
-  "Dew_tmin..c." = 'Temperatura (°C)',
-  "Dew_tmax..c." = 'Temperatura (°C)',    
-  "Dry_bulb_t..c." = 'Temperatura (°C)',  
+  "Tair_mean..c." = 'Temperatura média do ar (°C)',
+  "Tair_min..c." = 'Temperatura mínima do ar (°C)',      
+  "Tair_max..c." = 'Temperatura máxima do ar (°C)',    
+  "Dew_tmean..c." = 'Temperatura do ponto de orvalho média (°C)',   
+  "Dew_tmin..c." = 'Temperatura do ponto de orvalho mínima (°C)',
+  "Dew_tmax..c." = 'Temperatura do ponto de orvalho máxima (°C)',    
+  "Dry_bulb_t..c." = 'Temperatura de bulbo seco (°C)',  
   "Rainfall..mm." = 'Precipitação (mm)',     
   "Patm..mB." = 'Pressão atmosférica (mB)',       
-  "Rh_mean..porc." = 'Umidade (%)',    
-  "Rh_max..porc." = 'Umidade (%)',     
-  "Rh_min..porc." = 'Umidade (%)',  
-  "Ws_10..m.s.1." = 'Velocidade do vento (m/s)',    
-  "Ws_2..m.s.1." = 'Velocidade do vento (m/s)',       
-  "Ws_gust..m.s.1." = 'Velocidade do vento (m/s)',    
+  "Rh_mean..porc." = 'Umidade relativa do ar média (%)',    
+  "Rh_max..porc." = 'Umidade relativa do ar máxima (%)',     
+  "Rh_min..porc." = 'Umidade relativa do ar mínima (%)',  
+  "Ws_10..m.s.1." = 'Velocidade do vento a 10 metros de altura (m/s)',    
+  "Ws_2..m.s.1." = 'Velocidade do vento a 2 metros de altura (m/s)',       
+  "Ws_gust..m.s.1." = 'Rajada de vento (m/s)',    
   "Wd..degrees." = 'Direção do vento (°)',      
   "Sr..Mj.m.2.day.1." = expression(paste("Radiação solar (MJ/",m^2,")")),
   "Ra..Mj.m.2.day.1." = expression(paste("Radiação solar (MJ/",m^2,")"))
@@ -251,8 +251,7 @@ ui <- fluidPage(
                         tags$h4("Introdução"),
                         "No contexto de um programa de aprendizado ao longo de um semestre acadêmico, empreenderemos uma jornada composta por quatro fases cruciais,
                 culminando na elaboração de uma plataforma digital interativa voltada para a análise e exploração de dados meteorológicos oriundos da base
-                de dados do INMET, abrangendo o intervalo temporal de 2020 a 2021. Através deste percurso, conduziremos a transformação do conhecimento
-                teórico em aplicações práticas.",
+                de dados do INMET. Através deste percurso, conduziremos a transformação do conhecimento teórico em aplicações práticas.",
                         
                         tags$br(),tags$br(),tags$h4("Exploração e Compreensão dos Dados Meteorológicos: Desvelando a Complexidade dos Dados"),
                         "Na fase inaugural, imergiremos em um amplo acervo de dados meteorológicos públicos disponibilizados pelo INMET.
@@ -278,7 +277,7 @@ ui <- fluidPage(
                 níveis de expertise. Por meio da adoção de uma abordagem intuitiva e customizada, a plataforma habilitará os usuários a explorar
                 discernimentos de forma eficaz. Dessa maneira, a teoria será concretizada por meio de uma ferramenta funcional, oferecendo uma experiência
                 envolvente tanto para os pesquisadores quanto para os interessados em compreender os padrões climáticos característicos do período
-                entre 2020 e 2021.",
+                considerado.",
                         
                         tags$br(),tags$br(),tags$h4("Referências"),
                         tags$b("Pacote ‘BrazilMet’: "), tags$a(href="https://github.com/nytimes/covid-19-data", "Package ‘BrazilMet’"),tags$br(),
