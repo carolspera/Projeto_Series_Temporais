@@ -192,7 +192,7 @@ ui <- fluidPage(
                                               mainPanel(plotOutput("graph_media_movel"))
                                             )
                                    ),
-                                   tabPanel("Gráfico sazonal", icon = icon("chart-line"), 
+                                   tabPanel("Gráfico de Sazonalidade", icon = icon("chart-line"), 
                                             sidebarLayout(
                                               sidebarPanel(width = 3,
                                                 selectInput("sazonalidade_periodo", h5("Selecione o período:"), c("week","month","year"), selected = "year"),
@@ -203,6 +203,30 @@ ui <- fluidPage(
                                                 tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
                                               ),
                                               mainPanel(plotOutput("graph_sazonalidade"))
+                                            )
+                                   ),
+                                   tabPanel("Gráfico de Defasagens", icon = icon("chart-line"), 
+                                            sidebarLayout(
+                                              sidebarPanel(width = 3,
+                                                           selectInput("lag_var", h5("Selecione a variável:"), var_nomes2$titulo2),
+                                                           selectInput("lag_est", h5("Selecione a estação:"), est_nomes$estacao),
+                                                           dateInput("lag_data_i", h5("Data de início"), "2013-01-01"),
+                                                           dateInput("lag_data_f", h5("Data de fim"), "2020-01-01"),
+                                                           tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
+                                              ),
+                                              mainPanel(plotOutput("graph_lag"))
+                                            )
+                                   ),
+                                   tabPanel("Gráfico de Sub-séries", icon = icon("chart-line"), 
+                                            sidebarLayout(
+                                              sidebarPanel(width = 3,
+                                                           selectInput("subserie_var", h5("Selecione a variável:"), var_nomes2$titulo2),
+                                                           selectInput("subserie_est", h5("Selecione a estação:"), est_nomes$estacao),
+                                                           dateInput("subserie_data_i", h5("Data de início"), "2013-01-01"),
+                                                           dateInput("subserie_data_f", h5("Data de fim"), "2020-01-01"),
+                                                           tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
+                                              ),
+                                              mainPanel(plotOutput("graph_subserie"))
                                             )
                                    )
                       )
@@ -330,6 +354,65 @@ server <- function(input, output){
         title = paste(vpt(variavel), ", em dias sucessivos")
       );
     G2
+  })
+  
+  output$graph_lag <- renderPlot({
+    base = dados
+    estacao = epc(input$lag_est)
+    variavel = tpv(input$lag_var)
+    Data_ini = input$lag_data_i
+    Data_fim = input$lag_data_f
+    
+    base$months <- yearmonth(base$Date) # Passando pra formato ano/mês
+    filtro <- filter(base, Station_code == toString(estacao) & Date >= toString(Data_ini) & Date <= toString(Data_fim) )
+    
+    filtro$y <- filtro[[variavel]]
+    medias_T <- aggregate( y ~ months, data = filtro , FUN="mean" )
+    
+    dados_mensais = tsibble(
+      data = medias_T$months,
+      y = medias_T$y,
+      index = data
+    )
+    G3= 
+      dados_mensais %>% 
+      fill_gaps(data,y = mean(y),.full=TRUE) %>%
+      gg_lag(y, geom='point', period='year',lags = c(6,12)) +
+      #gg_season(fill_gaps(dados,y = mean(y),.full=TRUE), labels = 'both') + 
+      labs(
+        y = vpl(variavel), 
+        x = 'Tempo (em meses)', 
+        title = paste(vpt(variavel),', em anos sucessivos com lag = 6 e 12 meses')
+      ); G3
+  })
+  
+  output$graph_subserie <- renderPlot({
+    base = dados
+    estacao = epc(input$subserie_est)
+    variavel = tpv(input$subserie_var)
+    Data_ini = input$subserie_data_i
+    Data_fim = input$subserie_data_f
+    
+    base$months <- yearmonth(base$Date) # Passando pra formato ano/mês
+    filtro <- filter(base, Station_code == toString(estacao) & Date >= toString(Data_ini) & Date <= toString(Data_fim) )
+    
+    filtro$y <- filtro[[variavel]]
+    medias_T <- aggregate( y ~ months, data = filtro , FUN="mean" )
+    # Convertendo pra Tsibble
+    dados_mensais = tsibble(
+      data = medias_T$months,
+      y = medias_T$y,
+      index = data
+    )
+    
+    G4 = 
+      dados_mensais %>% 
+      gg_subseries(y) + 
+      labs(
+        y = vpl(variavel), 
+        x = 'Tempo (em anos)', 
+        title = paste(vpt(variavel), "em meses sucessivos")
+      ); G4
   })
   
   ## Análise geográfica
