@@ -437,7 +437,7 @@ server <- function(input, output){
     }else if (input$var == "Temperatura do ponto de orvalho média"){
       media_dew_m <- as.numeric(medias_por_ano$"Dew_tmean..c.")
       ano <- input$ano
-      bins <- seq(4, 24, by = 4)
+      bins <- seq(4, 24, by = 2)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Dew_tmean..c."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_dew_m, bins = bins)
@@ -473,7 +473,7 @@ server <- function(input, output){
     }else if (input$var == "Temperatura do ponto de orvalho máxima"){
       media_dew_max <- as.numeric(medias_por_ano$"Dew_tmax..c.")
       ano <- input$ano
-      bins <- seq(10, 30, by = 5)
+      bins <- seq(10, 30, by = 3)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Dew_tmax..c."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_dew_max, bins = bins)
@@ -491,7 +491,7 @@ server <- function(input, output){
     }else if (input$var == "Temperatura de bulbo seco"){
       media_dry_bulb <- as.numeric(medias_por_ano$"Dry_bulb_t..c.")
       ano <- input$ano
-      bins <- seq(12, 32, by = 4)
+      bins <- seq(12, 32, by = 2)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Dry_bulb_t..c."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_dry_bulb, bins = bins)
@@ -509,7 +509,7 @@ server <- function(input, output){
     }else if (input$var == "Precipitação total"){
       media_rainfall <- as.numeric(medias_por_ano$"Rainfall..mm.")
       ano <- input$ano
-      bins <- seq(0, 15, by = 5)
+      bins <- seq(0, 15, by = 1)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Rainfall..mm."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_rainfall, bins = bins)
@@ -527,7 +527,7 @@ server <- function(input, output){
     }else if (input$var == "Umidade relativa do ar média"){
       media_urm <- as.numeric(medias_por_ano$"Rh_mean..porc.")
       ano <- input$ano
-      bins <- seq(10, 100, by = 20)
+      bins <- seq(10, 100, by = 10)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Rh_mean..porc."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_urm, bins = bins)
@@ -545,7 +545,7 @@ server <- function(input, output){
     }else if (input$var == "Umidade relativa do ar máxima"){
       media_urma <- as.numeric(medias_por_ano$"Rh_max..porc.")
       ano <- input$ano
-      bins <- seq(70, 100, by = 10)
+      bins <- seq(70, 100, by = 5)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Rh_max..porc."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_urma, bins = bins)
@@ -581,7 +581,7 @@ server <- function(input, output){
     }else if (input$var == "Velocidade do vento a 10 metros de altura"){
       media_ws10 <- as.numeric(medias_por_ano$"Ws_10..m.s.1.")
       ano <- input$ano
-      bins <- seq(0, 10, by = 2)
+      bins <- seq(0, 10, by = 1)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Ws_10..m.s.1."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_ws10, bins = bins)
@@ -617,7 +617,7 @@ server <- function(input, output){
     }else if (input$var == "Rajada de vento"){
       media_l <- as.numeric(medias_por_ano$"Ws_gust..m.s.1.")
       ano <- input$ano
-      bins <- seq(0, 18, by = 4)
+      bins <- seq(0, 18, by = 2)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Ws_gust..m.s.1."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_l, bins = bins)
@@ -653,7 +653,7 @@ server <- function(input, output){
     }else if (input$var == "Radiação solar"){
       media_sr <- as.numeric(medias_por_ano$"Sr..Mj.m.2.day.1.")
       ano <- input$ano
-      bins <- seq(0, 50, by = 10)
+      bins <- seq(0, 50, by = 5)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Sr..Mj.m.2.day.1."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_sr, bins = bins)
