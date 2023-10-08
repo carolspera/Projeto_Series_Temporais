@@ -28,7 +28,8 @@ library(readr)
 
 
 # Leitura dos dados
-dados <- read.csv("dados_quase_completos.csv", sep=",", header = TRUE)
+# dados <- read.csv("dados_quase_completos.csv", sep=",", header = TRUE)
+dados <- read.csv("dados2011_2022.csv", sep=",", header = TRUE)
 dados$Date = as.Date(dados$Date)
 
 est_nomes <- data.frame(codigo = unique(dados$Station_code))
