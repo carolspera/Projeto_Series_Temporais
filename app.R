@@ -142,12 +142,12 @@ ui <- fluidPage(
                                    tabPanel("Média móvel", icon = icon("chart-line"),
                                             sidebarLayout(
                                               sidebarPanel(width = 3,
-                                                numericInput("mediamovel_k", h5("Número de observações utilizadas na média:"), value = 30, min = 0),
-                                                selectInput("mediamovel_var", h5("Selecione a variável:"), var_nomes2$titulo2),
-                                                selectInput("mediamovel_est", h5("Selecione a estação:"), est_nomes$estacao),
-                                                dateInput("mediamovel_data_i", h5("Data de início"), "2015-01-01"),
-                                                dateInput("mediamovel_data_f", h5("Data de fim"), "2016-01-01"),
-                                                tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
+                                                           numericInput("mediamovel_k", h5("Número de observações utilizadas na média:"), value = 30, min = 0),
+                                                           selectInput("mediamovel_var", h5("Selecione a variável:"), var_nomes2$titulo2),
+                                                           selectInput("mediamovel_est", h5("Selecione a estação:"), est_nomes$estacao),
+                                                           dateInput("mediamovel_data_i", h5("Data de início"), "2015-01-01"),
+                                                           dateInput("mediamovel_data_f", h5("Data de fim"), "2016-01-01"),
+                                                           tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
                                               ),
                                               mainPanel(plotOutput("graph_media_movel"))
                                             )
@@ -155,12 +155,12 @@ ui <- fluidPage(
                                    tabPanel("Gráfico de Sazonalidade", icon = icon("chart-line"), 
                                             sidebarLayout(
                                               sidebarPanel(width = 3,
-                                                selectInput("sazonalidade_periodo", h5("Selecione o período:"), c("week","month","year"), selected = "year"),
-                                                selectInput("sazonalidade_var", h5("Selecione a variável:"), var_nomes2$titulo2),
-                                                selectInput("sazonalidade_est", h5("Selecione a estação:"), est_nomes$estacao),
-                                                dateInput("sazonalidade_data_i", h5("Data de início"), "2013-01-01"),
-                                                dateInput("sazonalidade_data_f", h5("Data de fim"), "2020-01-01"),
-                                                tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
+                                                           selectInput("sazonalidade_periodo", h5("Selecione o período:"), c("week","month","year"), selected = "year"),
+                                                           selectInput("sazonalidade_var", h5("Selecione a variável:"), var_nomes2$titulo2),
+                                                           selectInput("sazonalidade_est", h5("Selecione a estação:"), est_nomes$estacao),
+                                                           dateInput("sazonalidade_data_i", h5("Data de início"), "2013-01-01"),
+                                                           dateInput("sazonalidade_data_f", h5("Data de fim"), "2020-01-01"),
+                                                           tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
                                               ),
                                               mainPanel(plotOutput("graph_sazonalidade"))
                                             )
@@ -207,10 +207,10 @@ ui <- fluidPage(
              tabPanel("Modelagem preditiva",
                       sidebarLayout(
                         sidebarPanel(width = 3,
-                          selectInput("modelagem_var", h5("Selecione a variável:"), var_nomes$titulo),
-                          selectInput("modelagem_est", h5("Selecione a(s) estação(ões) meteorológica(s)"), cidades_mod$estacao, multiple = TRUE),
-                          selectInput("modelagem_modelo", h5("Selecione o modelo:"), c("ARMA", "ARIMA", "SARIMA")),
-                          tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
+                                     selectInput("modelagem_var", h5("Selecione a variável:"), var_nomes$titulo),
+                                     selectInput("modelagem_est", h5("Selecione a(s) estação(ões) meteorológica(s)"), cidades_mod$estacao, multiple = TRUE),
+                                     selectInput("modelagem_modelo", h5("Selecione o modelo:"), c("ARMA", "ARIMA", "SARIMA")),
+                                     tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
                         ),
                         mainPanel()
                       )        
@@ -432,12 +432,12 @@ server <- function(input, output){
   
   ## Análise geográfica
   output$map <- renderLeaflet({
-
+    
     #Mapa para Temperatura média do ar
     if (input$var == "Temperatura média do ar"){
       media_temp_ar <- as.numeric(medias_por_ano$"Tair_mean..c.")
       ano <- input$ano
-      bins <- seq(16, 30, by = 2)
+      bins <- seq(14, 32, by = 2)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Tair_mean..c."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_temp_ar, bins = bins)
@@ -448,16 +448,16 @@ server <- function(input, output){
                    popup = ~ paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual: </b>", round(as.numeric(m),2), " °C","<br>"),
                    radius = 30000, color = ~pal(as.numeric(Tair_mean..c.)), fillOpacity = 0.1) %>%
         addLegend("bottomright", pal = pal, values = ~as.numeric(Tair_mean..c.), title = "Temperatura do ar média (°C)", opacity = 1)
-
+      
       mapa
-
+      
       #Mapa para Temperatura mínima do ar
     }else if (input$var == "Temperatura mínima do ar"){
-
+      
       media_temp_ar_min <- as.numeric(medias_por_ano$"Tair_min..c.")
       ano <- as.numeric(medias_por_ano$Ano)
       ano <- input$ano
-      bins <- seq(14, 30, by = 2)
+      bins <- seq(0, 30, by = 5)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Tair_min..c."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_temp_ar_min, bins = bins)
@@ -468,14 +468,14 @@ server <- function(input, output){
                    popup = ~paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual: </b>", round(as.numeric(m),2), " °C", "<br>"), 
                    radius = 30000, color = ~pal(as.numeric(Tair_min..c.)), fillOpacity = 1) %>%
         addLegend("bottomright", pal = pal, values = ~as.numeric(Tair_min..c.), title = "Temperatura do ar mínima (°C)", opacity = 1)
-
+      
       mapa
-
+      
       #Mapa para Temperatura máxima do ar
     }else if (input$var == "Temperatura máxima do ar"){
       media_temp_ar_max <- as.numeric(medias_por_ano$"Tair_max..c.")
       ano <- input$ano
-      bins <- seq(16, 34, by = 4)
+      bins <- seq(10, 40, by = 5)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Tair_max..c."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_temp_ar_max, bins = bins)
@@ -486,14 +486,14 @@ server <- function(input, output){
                    popup = ~paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual: </b>", round(as.numeric(m),2), " °C", "<br>"), 
                    radius = 30000, color = ~pal(as.numeric(Tair_max..c.)), fillOpacity = 1) %>%
         addLegend("bottomright", pal = pal, values = ~as.numeric(Tair_max..c.), title = "Temperatura do ar máxima (°C)", opacity = 1)
-
+      
       mapa
-
+      
       #Mapa para Temperatura do ponto de orvalho média
     }else if (input$var == "Temperatura do ponto de orvalho média"){
       media_dew_m <- as.numeric(medias_por_ano$"Dew_tmean..c.")
       ano <- input$ano
-      bins <- seq(10, 24, by = 2)
+      bins <- seq(4, 24, by = 2)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Dew_tmean..c."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_dew_m, bins = bins)
@@ -504,14 +504,14 @@ server <- function(input, output){
                    popup = ~paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual: </b>", round(as.numeric(m),2), " °C", "<br>"),
                    radius = 30000, color = ~pal(as.numeric(Dew_tmean..c.)), fillOpacity = 1) %>%
         addLegend("bottomright", pal = pal, values = ~as.numeric(Dew_tmean..c.), title = "Temperatura do ponto de orvalho média (°C)", opacity = 1)
-
+      
       mapa
-
+      
       #Mapa para Temperatura do ponto de orvalho mínima
     }else if (input$var == "Temperatura do ponto de orvalho mínima"){
       media_dew_min <- as.numeric(medias_por_ano$"Dew_tmin..c.")
       ano <- input$ano
-      bins <- seq(8, 22, by = 2)
+      bins <- seq(0, 25, by = 5)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Dew_tmin..c."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_dew_min, bins = bins)
@@ -522,14 +522,14 @@ server <- function(input, output){
                    popup = ~paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual: </b>", round(as.numeric(m),2), " °C", "<br>"),
                    radius = 30000, color = ~pal(as.numeric(Dew_tmin..c.)), fillOpacity = 1) %>%
         addLegend("bottomright", pal = pal, values = ~as.numeric(Dew_tmin..c.), title = "Temperatura do ponto de orvalho mínima (°C)", opacity = 1)
-
+      
       mapa
-
+      
       #Mapa para Temperatura do ponto de orvalho máxima
     }else if (input$var == "Temperatura do ponto de orvalho máxima"){
       media_dew_max <- as.numeric(medias_por_ano$"Dew_tmax..c.")
       ano <- input$ano
-      bins <- seq(12, 26, by = 2)
+      bins <- seq(10, 30, by = 3)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Dew_tmax..c."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_dew_max, bins = bins)
@@ -540,14 +540,14 @@ server <- function(input, output){
                    popup = ~paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual: </b>", round(as.numeric(m),2), " °C", "<br>"), 
                    radius = 30000, color = ~pal(as.numeric(Dew_tmax..c.)), fillOpacity = 1) %>%
         addLegend("bottomright", pal = pal, values = ~as.numeric(Dew_tmax..c.), title = "Temperatura do ponto de orvalho máxima (°C)", opacity = 1)
-
+      
       mapa
-
+      
       #Mapa para Temperatura de bulbo seco
     }else if (input$var == "Temperatura de bulbo seco"){
       media_dry_bulb <- as.numeric(medias_por_ano$"Dry_bulb_t..c.")
       ano <- input$ano
-      bins <- seq(16, 30, by = 2)
+      bins <- seq(12, 32, by = 2)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Dry_bulb_t..c."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_dry_bulb, bins = bins)
@@ -558,14 +558,14 @@ server <- function(input, output){
                    popup = ~paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual: </b>", round(as.numeric(m),2), " °C", "<br>"), 
                    radius = 30000, color = ~pal(as.numeric(Dry_bulb_t..c.)), fillOpacity = 1) %>%
         addLegend("bottomright", pal = pal, values = ~as.numeric(Dry_bulb_t..c.), title = "Temperatura de bulbo seco (°C)", opacity = 1)
-
+      
       mapa
-
+      
       #Mapa para Precipitação total
     }else if (input$var == "Precipitação total"){
       media_rainfall <- as.numeric(medias_por_ano$"Rainfall..mm.")
       ano <- input$ano
-      bins <- seq(0, 10, by = 2)
+      bins <- seq(0, 15, by = 1)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Rainfall..mm."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_rainfall, bins = bins)
@@ -576,14 +576,14 @@ server <- function(input, output){
                    popup = ~paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual: </b>", round(as.numeric(m),2), " mm", "<br>"), 
                    radius = 30000, color = ~pal(as.numeric(Rainfall..mm.)), fillOpacity = 1) %>%
         addLegend("bottomright", pal = pal, values = ~as.numeric(Rainfall..mm.), title = "Precipitação total (mm)", opacity = 1)
-
+      
       mapa
-
+      
       #Mapa para Umidade relativa do ar média
     }else if (input$var == "Umidade relativa do ar média"){
       media_urm <- as.numeric(medias_por_ano$"Rh_mean..porc.")
       ano <- input$ano
-      bins <- seq(60, 82, by = 4)
+      bins <- seq(10, 100, by = 10)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Rh_mean..porc."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_urm, bins = bins)
@@ -594,14 +594,14 @@ server <- function(input, output){
                    popup = ~paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual: </b>", round(as.numeric(m),2), " %", "<br>"), 
                    radius = 30000, color = ~pal(as.numeric(Rh_mean..porc.)), fillOpacity = 1) %>%
         addLegend("bottomright", pal = pal, values = ~as.numeric(Rh_mean..porc.), title = "Umidade relativa média (%)", opacity = 1)
-
+      
       mapa
-
+      
       #Mapa para Umidade relativa do ar máxima
     }else if (input$var == "Umidade relativa do ar máxima"){
       media_urma <- as.numeric(medias_por_ano$"Rh_max..porc.")
       ano <- input$ano
-      bins <- seq(80, 98, by = 2)
+      bins <- seq(70, 100, by = 5)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Rh_max..porc."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_urma, bins = bins)
@@ -612,14 +612,14 @@ server <- function(input, output){
                    popup = ~paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual: </b>", round(as.numeric(m),2), " %", "<br>"),
                    radius = 30000, color = ~pal(as.numeric(Rh_max..porc.)), fillOpacity = 1) %>%
         addLegend("bottomright", pal = pal, values = ~as.numeric(Rh_max..porc.), title = "Umidade relativa máxima (%)", opacity = 1)
-
+      
       mapa
-
+      
       #Mapa para Umidade relativa do ar mínima
     }else if (input$var == "Umidade relativa do ar mínima"){
       media_urmi <- as.numeric(medias_por_ano$"Rh_min..porc.")
       ano <- input$ano
-      bins <- seq(36, 66, by = 4)
+      bins <- seq(10, 90, by = 10)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Rh_min..porc."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_urmi, bins = bins)
@@ -630,14 +630,14 @@ server <- function(input, output){
                    popup = ~paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual: </b>", round(as.numeric(m),2), " %", "<br>"),
                    radius = 30000, color = ~pal(as.numeric(Rh_min..porc.)), fillOpacity = 1) %>%
         addLegend("bottomright", pal = pal, values = ~as.numeric(Rh_min..porc.), title = "Umidade relativa mínima (%)", opacity = 1)
-
+      
       mapa
-
+      
       #Mapa para Velocidade do vento a 10 metros de altura
     }else if (input$var == "Velocidade do vento a 10 metros de altura"){
       media_ws10 <- as.numeric(medias_por_ano$"Ws_10..m.s.1.")
       ano <- input$ano
-      bins <- seq(0.8, 2.6, by = 0.4)
+      bins <- seq(0, 10, by = 1)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Ws_10..m.s.1."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_ws10, bins = bins)
@@ -648,14 +648,14 @@ server <- function(input, output){
                    popup = ~paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual: </b>", round(as.numeric(m),2), " m/s", "<br>"), 
                    radius = 30000, color = ~pal(as.numeric(Ws_10..m.s.1.)), fillOpacity = 1) %>%
         addLegend("bottomright", pal = pal, values = ~as.numeric(Ws_10..m.s.1.), title = "Velocidade do vento a 10 metros de altura (m/s)", opacity = 1)
-
+      
       mapa
-
+      
       #Mapa para Velocidade do vento a 2 metros de altura
     }else if (input$var == "Velocidade do vento a 2 metros de altura"){
       media_ws2 <- as.numeric(medias_por_ano$"Ws_2..m.s.1.")
       ano <- input$ano
-      bins <- seq(0.8, 2, by = 0.2)
+      bins <- seq(-3.3, -3.1, by = 0.05)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Ws_2..m.s.1."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_ws2, bins = bins)
@@ -666,14 +666,14 @@ server <- function(input, output){
                    popup = ~paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual: </b>", round(as.numeric(m),2), " m/s", "<br>"),
                    radius = 30000, color = ~pal(as.numeric(Ws_2..m.s.1.)), fillOpacity = 1) %>%
         addLegend("bottomright", pal = pal, values = ~as.numeric(Ws_2..m.s.1.), title = "Velocidade do vento a 2 metros de altura (m/s)", opacity = 1)
-
+      
       mapa
-
+      
       #Mapa para Rajada de vento
     }else if (input$var == "Rajada de vento"){
       media_l <- as.numeric(medias_por_ano$"Ws_gust..m.s.1.")
       ano <- input$ano
-      bins <- seq(6.4, 9.6, by = 0.4)
+      bins <- seq(0, 18, by = 2)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Ws_gust..m.s.1."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_l, bins = bins)
@@ -684,14 +684,14 @@ server <- function(input, output){
                    popup = ~paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual: </b>", round(as.numeric(m),2), " m/s", "<br>"), 
                    radius = 30000, color = ~pal(as.numeric(Ws_gust..m.s.1.)), fillOpacity = 1) %>%
         addLegend("bottomright", pal = pal, values = ~as.numeric(Ws_gust..m.s.1.), title = "Lufada - Rajada de vento (m/s)", opacity = 1)
-
+      
       mapa
-
+      
       #Mapa para Direção do vento
     }else if (input$var == "Direção do vento"){
       media_l <- as.numeric(medias_por_ano$"Wd..degrees.")
       ano <- input$ano
-      bins <- seq(106, 166, by = 10)
+      bins <- seq(0, 360, by = 60)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Wd..degrees."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_l, bins = bins)
@@ -702,14 +702,14 @@ server <- function(input, output){
                    popup = ~paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual: </b>", round(as.numeric(m),2), " °", "<br>"), 
                    radius = 30000, color = ~pal(as.numeric(Wd..degrees.)), fillOpacity = 1) %>%
         addLegend("bottomright", pal = pal, values = ~as.numeric(Wd..degrees.), title = "Direção do vento (°)", opacity = 1)
-
+      
       mapa
-
+      
       #Mapa para Radiação solar
     }else if (input$var == "Radiação solar"){
       media_sr <- as.numeric(medias_por_ano$"Sr..Mj.m.2.day.1.")
       ano <- input$ano
-      bins <- seq(12, 20, by = 2)
+      bins <- seq(0, 50, by = 5)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Sr..Mj.m.2.day.1."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_sr, bins = bins)
@@ -720,9 +720,9 @@ server <- function(input, output){
                    popup = ~paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual: </b>", round(as.numeric(m),2), " (MJ/m^2)", "<br>"),
                    radius = 30000, color = ~pal(as.numeric(Sr..Mj.m.2.day.1.)), fillOpacity = 1) %>%
         addLegend("bottomright", pal = pal, values = ~as.numeric(Sr..Mj.m.2.day.1.), title = "Radiação solar (MJ/m^2)", opacity = 1)
-
+      
       mapa
-
+      
       # #Mapa para Radiação extraterrestre por períodos diários
       # }else if (input$var == "Radiação extraterrestre por períodos diários"){
       #   media_ra <- as.numeric(medias_por_ano$"Ra..Mj.m.2.day.1.")
@@ -736,11 +736,11 @@ server <- function(input, output){
       #   mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
       #     addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15,
       #                popup = ~paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual"): </b>", round(as.numeric(m),2), " (MJ/m^2)", "<br>"),
-                      # radius = 30000, color = ~pal(as.numeric(Ra..Mj.m.2.day.1.)), fillOpacity = 1) %>%
+      # radius = 30000, color = ~pal(as.numeric(Ra..Mj.m.2.day.1.)), fillOpacity = 1) %>%
       #     addLegend("bottomright", pal = pal, values = ~as.numeric(Ra..Mj.m.2.day.1.), title = expression(paste("Radiação solar (MJ/",m^2,")")), opacity = 1)
       #
       #   mapa
-
+      
     }
   })
 }
