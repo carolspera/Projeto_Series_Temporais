@@ -422,7 +422,7 @@ server <- function(input, output){
     # Plot
     ggplot(grid, aes(x=T, y=H, fill=Z)) +
       geom_tile() +
-      scale_fill_manual(values=colors_light, guide="none") +  # Definindo a escala de preenchimento como discreta
+      scale_fill_manual(values=colors_light, breaks=names(colors_light)) +  # Definindo a escala de preenchimento como discreta
       labs(title="Efeito de Wet Bulb na Habitabilidade Humana", x="Temperatura Ambiente (°C)", y="Umidade Relativa (%)", fill="Zonas") +
       theme_minimal() +
       geom_point(data=dados_corte, aes(x=T1, y=H1), color="blue", size=2, inherit.aes=F)
