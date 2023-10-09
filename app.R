@@ -391,17 +391,10 @@ server <- function(input, output){
     Data_ini = input$wetbulb_data_i
     Data_fim = input$wetbulb_data_f
     
-    dados_corte = filter(base, Station_code == toString(estacao) & Date >= toString(Data_ini) & Date <= toString(Data_fim))
+    temperatures <- seq(0, 50, length.out=100)
+    humidities <- seq(0, 100, length.out=100)
 
-    temperatures <- dados_corte$Tair_mean..c.
-    humidities <- dados_corte$Rh_mean..porc.
-
-    dados_corte = data.frame(T1=temperatures, H1=humidities)
-
-    temperatures <- seq(0, 50, length.out=50)
-    humidities <- seq(0, 100, length.out=50)
-
-    grid <- expand.grid(T=temperatures, H=humidities)
+    grid <- expand.grid(T1=temperatures, H1=humidities)
     grid$W <- grid$T - (0.55 * (1 - grid$H/100) * (grid$T - 14.5))
 
     # Definindo as zonas
@@ -413,6 +406,14 @@ server <- function(input, output){
                     ifelse(grid$W <= W_laranja, "Risco",
                             ifelse(grid$W <= W_vermelha, "Crítico", "Perigoso")))
 
+    # Leitura dos dados
+    dados_corte = filter(base, Station_code == toString(estacao) & Date >= toString(Data_ini) & Date <= toString(Data_fim))
+
+    temperatures <- dados_corte$Tair_mean..c.
+    humidities <- dados_corte$Rh_mean..porc.
+
+    dados_corte = data.frame(T2=temperatures, H2=humidities)
+
     # Cores
     colors_light <- c("Confortável"="#a8e6cf",
                       "Risco"="#ffd3b6",
@@ -420,12 +421,12 @@ server <- function(input, output){
                       "Perigoso"="#ff8b94")
 
     # Plot
-    ggplot(grid, aes(x=T, y=H, fill=Z)) +
+    ggplot(grid, aes(x=T1, y=H1, fill=Z)) +
       geom_tile() +
       scale_fill_manual(values=colors_light, breaks=names(colors_light)) +  # Definindo a escala de preenchimento como discreta
       labs(title="Efeito de Wet Bulb na Habitabilidade Humana", x="Temperatura Ambiente (°C)", y="Umidade Relativa (%)", fill="Zonas") +
       theme_minimal() +
-      geom_point(data=dados_corte, aes(x=T1, y=H1), color="blue", size=2, inherit.aes=F)
+      geom_point(data=dados_corte, aes(x=T2, y=H2), color="blue", size=2, inherit.aes=F)
   })
 
 
