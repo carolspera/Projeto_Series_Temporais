@@ -384,7 +384,7 @@ server <- function(input, output){
         title = paste(vpt(variavel), "em meses sucessivos")
       ); G4
   })
-
+  
   output$graph_wetbulb <- renderPlot({
     base = dados
     estacao = epc(input$wetbulb_est)
@@ -392,33 +392,33 @@ server <- function(input, output){
     Data_fim = input$wetbulb_data_f
     
     dados_corte = filter(base, Station_code == toString(estacao) & Date >= toString(Data_ini) & Date <= toString(Data_fim))
-
+    
     temperatures <- dados_corte$Tair_mean..c.
     humidities <- dados_corte$Rh_mean..porc.
-
+    
     dados_corte = data.frame(T1=temperatures, H1=humidities)
-
+    
     temperatures <- seq(0, 50, length.out=50)
     humidities <- seq(0, 100, length.out=50)
-
+    
     grid <- expand.grid(T=temperatures, H=humidities)
     grid$W <- grid$T - (0.55 * (1 - grid$H/100) * (grid$T - 14.5))
-
+    
     # Definindo as zonas
     W_amarela <- 24
     W_laranja <- 26
     W_vermelha <- 28
-
+    
     grid$Z <- ifelse(grid$W <= W_amarela, "Confortável",
-                    ifelse(grid$W <= W_laranja, "Risco",
+                     ifelse(grid$W <= W_laranja, "Risco",
                             ifelse(grid$W <= W_vermelha, "Crítico", "Perigoso")))
-
+    
     # Cores
     colors_light <- c("Confortável"="#a8e6cf",
                       "Risco"="#ffd3b6",
                       "Crítico"="#ffaaa5",
                       "Perigoso"="#ff8b94")
-
+    
     # Plot
     ggplot(grid, aes(x=T, y=H, fill=Z)) +
       geom_tile() +
@@ -427,8 +427,8 @@ server <- function(input, output){
       theme_minimal() +
       geom_point(data=dados_corte, aes(x=T1, y=H1), color="blue", size=2, inherit.aes=F)
   })
-
-
+  
+  
   
   ## Análise geográfica
   output$map <- renderLeaflet({
@@ -446,7 +446,7 @@ server <- function(input, output){
       mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
         addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15,
                    popup = ~ paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual: </b>", round(as.numeric(m),2), " °C","<br>"),
-                   radius = 30000, color = ~pal(as.numeric(Tair_mean..c.)), fillOpacity = 0.1) %>%
+                   radius = 30000, color = ~pal(as.numeric(Tair_mean..c.)), fillOpacity = 1) %>%
         addLegend("bottomright", pal = pal, values = ~as.numeric(Tair_mean..c.), title = "Temperatura do ar média (°C)", opacity = 1)
       
       mapa
