@@ -229,6 +229,31 @@ ui <- fluidPage(
                                               ),
                                               mainPanel(plotOutput("graph_autocorr"))
                                             )
+                                   ),
+                                   tabPanel("Gráfico de Decomposição", icon = icon("chart-line"), 
+                                            sidebarLayout(
+                                              sidebarPanel(width = 3,
+                                                           selectInput("decomp_var", h5("Selecione a variável:"), var_nomes2$titulo2),
+                                                           selectInput("decomp_est", h5("Selecione a estação:"), est_nomes$estacao),
+                                                           dateInput("decomp_data_i", h5("Data de início"), "2013-01-01"),
+                                                           dateInput("decomp_data_f", h5("Data de fim"), "2020-01-01"),
+                                                           tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
+                                              ),
+                                              mainPanel(plotOutput("graph_decomp"))
+                                            )
+                                   ),
+                                   tabPanel("Gráfico de Diferenciação", icon = icon("chart-line"),
+                                            sidebarLayout(
+                                              sidebarPanel(width = 3,
+                                                           selectInput("dif_var", h5("Selecione a variável:"), var_nomes2$titulo2),
+                                                           selectInput("dif_est", h5("Selecione a estação:"), est_nomes$estacao),
+                                                           numericInput("dif_defasagem", h5("Selecione a defasagem:"), value = 12, min = 1),
+                                                           dateInput("dif_data_i", h5("Data de início"), "2013-01-01"),
+                                                           dateInput("dif_data_f", h5("Data de fim"), "2020-01-01"),
+                                                           tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
+                                              ),
+                                              mainPanel(plotOutput("graph_dif"))
+                                            )
                                    )
                       )
              ),
@@ -485,6 +510,53 @@ server <- function(input, output){
       coord_cartesian(ylim=c(-1,1)) +
       theme_minimal(); G1
   })
+ 
+  output$graph_decomp <- renderPlot({
+    base = dados
+    estacao = epc(input$decomp_est)
+    variavel = tpv(input$decomp_var)
+    Data_ini = input$decomp_data_i
+    Data_fim = input$decomp_data_f
+    
+    base$months <- yearmonth(base$Date) # Passando pra formato ano/mês
+    filtro <- filter(base, Station_code == toString(estacao) & Date >= toString(Data_ini) & Date <= toString(Data_fim) )
+    filtro$y <- filtro[[variavel]]
+    medias_T <- aggregate( y ~ months, data = filtro , FUN="mean" )
+    
+    dados_mensais = tsibble(
+      data = medias_T$months,
+      y = medias_T$y,
+      index = data
+    )
+    
+    decomposicao = dados_mensais %>%
+      fill_gaps(data,y = mean(y),.full=TRUE) %>%
+      model(STL(y ~ season(window = 12))) %>%
+      components()
+    
+    autoplot(decomposicao)
+  }) 
+  
+  output$graph_dif <- renderPlot({
+    base = dados
+    estacao = epc(input$dif_est)
+    variavel = tpv(input$dif_var)
+    Data_ini = input$dif_data_i
+    Data_fim = input$dif_data_f
+    defasagem = input$dif_defasagem
+
+    base$months <- yearmonth(base$Date) # Passando pra formato ano/mês
+    filtro <- filter(base, Station_code == toString(estacao) & Date >= toString(Data_ini) & Date <= toString(Data_fim) )
+    dados = tsibble(
+      data = ymd(filtro$Date),
+      y = filtro[[variavel]],
+      index = data
+    )
+    diferenca_sazonal = diff(dados$y, lag=defasagem)
+    
+    plot(diferenca_sazonal, type='l')
+  })
+  
   
   
   ## Análise geográfica
