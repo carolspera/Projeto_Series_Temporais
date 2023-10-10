@@ -149,7 +149,10 @@ ui <- fluidPage(
                                                            dateInput("mediamovel_data_f", h5("Data de fim"), "2016-01-01"),
                                                            tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
                                               ),
-                                              mainPanel(plotOutput("graph_media_movel"))
+                                              mainPanel(plotOutput("graph_media_movel"),
+                                                        helpText("Gráficos de médias móveis são úteis para identificar tendências na série temporal. A linha das médias móveis representa o valor médio dos pontos de dados dentro da janela de tempo específica que você selecionar.",tags$br(),
+                                                                 "- Se a linha estiver subindo, há uma indicação de uma tendência ascendente nos dados. Se a linha estiver em declínio, há uma indicação de uma tendência descendente.",tags$br(),
+                                                                 "- Observe casos em que a média móvel e os dados brutos divergem significativamente. A divergência pode indicar potenciais pontos de viragem ou reversões na tendência."))
                                             )
                                    ),
                                    tabPanel("Gráfico de Sazonalidade", icon = icon("chart-line"), 
@@ -162,7 +165,8 @@ ui <- fluidPage(
                                                            dateInput("sazonalidade_data_f", h5("Data de fim"), "2020-01-01"),
                                                            tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
                                               ),
-                                              mainPanel(plotOutput("graph_sazonalidade"))
+                                              mainPanel(plotOutput("graph_sazonalidade"),
+                                                        helpText("Gráficos  sazonais são úteis  para identificar padrões e tendências regulares que se repetem em intervalos aproximadamente fixos, ou identificar pontos de virada e o período em que ocorreu. A interpretação de um gráfico sazonal envolve a análise de padrões e flutuações nos dados em intervalos de tempo."))
                                             )
                                    ),
                                    tabPanel("Gráfico de Defasagens", icon = icon("chart-line"), 
@@ -174,7 +178,14 @@ ui <- fluidPage(
                                                            dateInput("lag_data_f", h5("Data de fim"), "2020-01-01"),
                                                            tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
                                               ),
-                                              mainPanel(plotOutput("graph_lag"))
+                                              mainPanel(plotOutput("graph_lag"),
+                                                        helpText("Gráficos de defasagens são úteis para a avaliar autocorrelação, ou seja, verificam se uma série temporal é aleatória ou não.",tags$br(),
+                                                                 "-  O eixo horizontal mostra o valor da variável.",tags$br(),
+                                                                 "- O eixo vertical mostra o valor da variável para k = 6 meses (primeiro plot) e k = 12 meses (segundo plot).",tags$br(),
+                                                                 "- As cores representam cada mês do ano.",tags$br(),
+                                                                 "- Se os pontos no lag plot se agruparem em torno da linha diagonal tracejada em cor cinza, há indicação  de autocorrelação positiva. Ou seja, a variável está positivamente correlacionada com seus valores passados.",tags$br(),
+                                                                 "- Se os pontos se agruparem em torno de uma linha diagonal do canto superior esquerdo ao canto inferior direito, isso sugere autocorrelação negativa. Neste caso, a variável está negativamente correlacionada com seus valores passados.",tags$br(),
+                                                                 "- Se os pontos estiverem espalhados aleatoriamente sem formar um padrão claro, há indicação de que não há autocorrelação significativa."))
                                             )
                                    ),
                                    tabPanel("Gráfico de Sub-séries", icon = icon("chart-line"), 
@@ -186,7 +197,14 @@ ui <- fluidPage(
                                                            dateInput("subserie_data_f", h5("Data de fim"), "2020-01-01"),
                                                            tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
                                               ),
-                                              mainPanel(plotOutput("graph_subserie"))
+                                              mainPanel(plotOutput("graph_subserie"),
+                                                        helpText("Gráficos de sub-séries são úteis para identificar mudanças em períodos específicos e padrões sazonais. Neste gráfico, os dados de cada mês é coletado de forma conjunta e separados em mini plots. Esta forma de gráfico permite que o padrão sazonal subjacente seja visualizado de forma mais clara.",tags$br(),
+                                                                 "- Eixo vertical: variável resposta.",tags$br(),
+                                                                 "- Eixo horizontal: Tempo ordenado por mês do ano. Por exemplo, todos os valores de janeiro são plotados (em ordem cronológica), depois todos os valores de fevereiro, e assim por diante.",tags$br(),
+                                                                 "- As linhas em azul representam as médias dos meses conforme os anos escolhidos.",tags$br(),
+                                                                 "- Compare as alturas dos picos e vales em diferentes meses. Esta comparação ajuda a identificar os meses com maior impacto na variável resposta.",tags$br(),
+                                                                 "- Observe se há um padrão dentro do mês (por exemplo, janeiro e dezembro apresentam padrões semelhantes?)",tags$br(),
+                                                                 "- Procure mudanças nos padrões sazonais em diferentes meses. Uma modificação pode indicar uma mudança no início ou no final de uma temporada específica."))
                                             )
                                    ),
                                    tabPanel("Wetbulb", icon = icon("chart-line"), 
