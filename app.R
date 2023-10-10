@@ -658,7 +658,7 @@ server <- function(input, output){
     if (input$var == "Temperatura média do ar"){
       media_temp_ar <- as.numeric(medias_por_ano$"Tair_mean..c.")
       ano <- input$ano
-      bins <- seq(14, 32, by = 2)
+      bins <- seq(10, 32, by = 2)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Tair_mean..c."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_temp_ar, bins = bins)
@@ -768,7 +768,7 @@ server <- function(input, output){
     }else if (input$var == "Temperatura de bulbo seco"){
       media_dry_bulb <- as.numeric(medias_por_ano$"Dry_bulb_t..c.")
       ano <- input$ano
-      bins <- seq(12, 32, by = 2)
+      bins <- seq(10, 32, by = 2)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Dry_bulb_t..c."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_dry_bulb, bins = bins)
@@ -822,7 +822,7 @@ server <- function(input, output){
     }else if (input$var == "Umidade relativa do ar máxima"){
       media_urma <- as.numeric(medias_por_ano$"Rh_max..porc.")
       ano <- input$ano
-      bins <- seq(70, 100, by = 5)
+      bins <- seq(40, 100, by = 5)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Rh_max..porc."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_urma, bins = bins)
@@ -858,7 +858,7 @@ server <- function(input, output){
     }else if (input$var == "Velocidade do vento a 10 metros de altura"){
       media_ws10 <- as.numeric(medias_por_ano$"Ws_10..m.s.1.")
       ano <- input$ano
-      bins <- seq(0, 10, by = 1)
+      bins <- seq(0, 8, by = 1)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Ws_10..m.s.1."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_ws10, bins = bins)
@@ -872,23 +872,23 @@ server <- function(input, output){
       
       mapa
       
-      #Mapa para Velocidade do vento a 2 metros de altura
-    }else if (input$var == "Velocidade do vento a 2 metros de altura"){
-      media_ws2 <- as.numeric(medias_por_ano$"Ws_2..m.s.1.")
-      ano <- input$ano
-      bins <- seq(-3.3, -3.1, by = 0.05)
-      data_filtered <- subset(medias_por_ano, Ano == ano)
-      m <- data_filtered$"Ws_2..m.s.1."
-      pal <- colorBin("YlOrRd", domain = data_filtered$media_ws2, bins = bins)
-      labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
-                        data_filtered$Station, data_filtered$media_ws2) %>% lapply(htmltools::HTML)
-      mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
-        addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15,
-                   popup = ~paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual: </b>", round(as.numeric(m),2), " m/s", "<br>"),
-                   radius = 30000, color = ~pal(as.numeric(Ws_2..m.s.1.)), fillOpacity = 1) %>%
-        addLegend("bottomright", pal = pal, values = ~as.numeric(Ws_2..m.s.1.), title = "Velocidade do vento a 2 metros de altura (m/s)", opacity = 1)
-      
-      mapa
+    #   #Mapa para Velocidade do vento a 2 metros de altura
+    # }else if (input$var == "Velocidade do vento a 2 metros de altura"){
+    #   media_ws2 <- as.numeric(medias_por_ano$"Ws_2..m.s.1.")
+    #   ano <- input$ano
+    #   bins <- seq(-3.3, -3.1, by = 0.05)
+    #   data_filtered <- subset(medias_por_ano, Ano == ano)
+    #   m <- data_filtered$"Ws_2..m.s.1."
+    #   pal <- colorBin("YlOrRd", domain = data_filtered$media_ws2, bins = bins)
+    #   labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
+    #                     data_filtered$Station, data_filtered$media_ws2) %>% lapply(htmltools::HTML)
+    #   mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
+    #     addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15,
+    #                popup = ~paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual: </b>", round(as.numeric(m),2), " m/s", "<br>"),
+    #                radius = 30000, color = ~pal(as.numeric(Ws_2..m.s.1.)), fillOpacity = 1) %>%
+    #     addLegend("bottomright", pal = pal, values = ~as.numeric(Ws_2..m.s.1.), title = "Velocidade do vento a 2 metros de altura (m/s)", opacity = 1)
+    #   
+    #   mapa
       
       #Mapa para Rajada de vento
     }else if (input$var == "Rajada de vento"){
@@ -930,7 +930,7 @@ server <- function(input, output){
     }else if (input$var == "Radiação solar"){
       media_sr <- as.numeric(medias_por_ano$"Sr..Mj.m.2.day.1.")
       ano <- input$ano
-      bins <- seq(0, 50, by = 5)
+      bins <- seq(0, 70, by = 5)
       data_filtered <- subset(medias_por_ano, Ano == ano)
       m <- data_filtered$"Sr..Mj.m.2.day.1."
       pal <- colorBin("YlOrRd", domain = data_filtered$media_sr, bins = bins)
