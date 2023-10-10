@@ -48,6 +48,5 @@ variaveis <- c("Tair_mean..c.", "Tair_min..c.", "Tair_max..c.","Dew_tmean..c.", 
                "Wd..degrees.", "Sr..Mj.m.2.day.1.") #"Ra..Mj.m.2.day.1." e "Patm..mB."
 
 medias_por_ano <- calcular_media_por_ano(variaveis, dados)
-medias_por_ano <- replace(medias_por_ano, is.na(medias_por_ano),  -3.10719)
 
 write.csv(medias_por_ano, "medias_por_ano.csv")
