@@ -638,7 +638,7 @@ server <- function(input, output){
     dados_ajustados = dados_mensais$y - decomposicao$season_year
     
     n = length(dados_ajustados)
-    n2 = as.integer(n / 2)
+    n2 = as.integer(round(n / 2))
     first_half = dados_ajustados[1:n2]
     second_half = dados_ajustados[(n2 + 1):n]
     signs = sign(second_half - first_half)
