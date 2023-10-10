@@ -131,7 +131,7 @@ ui <- fluidPage(
                                         draggable = F, height = "auto", h3("Análise geográfica"),
                                         
                                         selectInput("var","Var",label = h4("Selecione a variável:"), choices = var_nomes2$titulo2),
-                                        sliderInput("ano", label = h4("Selecione o ano"), min = 2000, max = 2022, value = 2018, sep = ""), hr(),
+                                        sliderInput("ano", label = h4("Selecione o ano"), min = 2000, max = 2022, value = 2019, sep = ""), hr(),
                                         fluidRow(column(4, verbatimTextOutput("value"))),
                                         tags$div(id="cite", h6('Dados retirados do portal INMET.'))))
              ),
@@ -253,6 +253,21 @@ ui <- fluidPage(
                                                            tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
                                               ),
                                               mainPanel(plotOutput("graph_dif"))
+                                            )
+                                   ),
+                                   tabPanel("Teste de Cox-Stuart", icon = icon("chart-line"),
+                                            sidebarLayout(
+                                              sidebarPanel(width = 3,
+                                                           selectInput("cox_stuart_var", h5("Selecione a variável:"), var_nomes2$titulo2),
+                                                           selectInput("cox_stuart_est", h5("Selecione a estação:"), est_nomes$estacao),
+                                                           numericInput("cox_stuart_defasagem", h5("Selecione a defasagem:"), value = 12, min = 1),
+                                                           dateInput("cox_stuart_data_i", h5("Data de início"), "2013-01-01"),
+                                                           dateInput("cox_stuart_data_f", h5("Data de fim"), "2020-01-01"),
+                                                           tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
+                                              ),
+                                              mainPanel(plotOutput("graph_cox_stuart"),
+                                                        br(), br(),
+                                                        verbatimTextOutput("stats"),)
                                             )
                                    )
                       )
@@ -557,6 +572,83 @@ server <- function(input, output){
     plot(diferenca_sazonal, type='l')
   })
   
+  output$graph_cox_stuart <- renderPlot({
+    base = dados
+    estacao = epc(input$cox_stuart_est)
+    variavel = tpv(input$cox_stuart_var)
+    Data_ini = input$cox_stuart_data_i
+    Data_fim = input$cox_stuart_data_f
+    defasagem = input$cox_stuart_defasagem
+    
+    base$months <- yearmonth(base$Date) # Passando pra formato ano/mês
+    filtro <- filter(base, Station_code == toString(estacao) & Date >= toString(Data_ini) & Date <= toString(Data_fim) )
+    filtro$y <- filtro[[variavel]]
+    medias_T <- aggregate( y ~ months, data = filtro , FUN="mean" )
+    
+    dados_mensais = tsibble(
+      data = medias_T$months,
+      y = medias_T$y,
+      index = data
+    )
+    
+    decomposicao = dados_mensais %>%
+      fill_gaps(data,y = mean(y),.full=TRUE) %>%
+      model(STL(y ~ season(window = 12))) %>%
+      components()
+    
+    dados_ajustados = dados_mensais$y - decomposicao$season_year
+    plot(dados_ajustados, type='l', sub = 'Série com sazonalidade removida')
+    
+    n = length(dados_ajustados)
+    n2 = n / 2
+    first_half = dados_ajustados[1:n2]
+    second_half = dados_ajustados[(n2 + 1):n]
+    signs = sign(second_half - first_half)
+    pos_signs = sum(signs == 1)
+    neg_signs = sum(signs == -1)
+    test_statistic = abs(pos_signs - neg_signs)
+    p_value = 2 * pbinom(min(pos_signs, neg_signs), n2, 0.5)
+    return(list(test_statistic = test_statistic, p_value = p_value))
+  })
+  
+  output$stats <- renderPrint({
+    base = dados
+    estacao = epc(input$cox_stuart_est)
+    variavel = tpv(input$cox_stuart_var)
+    Data_ini = input$cox_stuart_data_i
+    Data_fim = input$cox_stuart_data_f
+    defasagem = input$cox_stuart_defasagem
+    
+    base$months <- yearmonth(base$Date) # Passando pra formato ano/mês
+    filtro <- filter(base, Station_code == toString(estacao) & Date >= toString(Data_ini) & Date <= toString(Data_fim) )
+    filtro$y <- filtro[[variavel]]
+    medias_T <- aggregate( y ~ months, data = filtro , FUN="mean" )
+    
+    dados_mensais = tsibble(
+      data = medias_T$months,
+      y = medias_T$y,
+      index = data
+    )
+    
+    decomposicao = dados_mensais %>%
+      fill_gaps(data,y = mean(y),.full=TRUE) %>%
+      model(STL(y ~ season(window = 12))) %>%
+      components()
+    
+    dados_ajustados = dados_mensais$y - decomposicao$season_year
+    
+    n = length(dados_ajustados)
+    n2 = as.integer(n / 2)
+    first_half = dados_ajustados[1:n2]
+    second_half = dados_ajustados[(n2 + 1):n]
+    signs = sign(second_half - first_half)
+    pos_signs = sum(signs == 1)
+    neg_signs = sum(signs == -1)
+    test_statistic = abs(pos_signs - neg_signs)
+    p_value = 2 * pbinom(min(pos_signs, neg_signs), n2, 0.5)
+    return(list(test_statistic = test_statistic, p_value = p_value))
+    
+  })
   
   
   ## Análise geográfica
