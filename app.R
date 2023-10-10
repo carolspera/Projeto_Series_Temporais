@@ -199,6 +199,18 @@ ui <- fluidPage(
                                               ),
                                               mainPanel(plotOutput("graph_wetbulb"))
                                             )
+                                   ),
+                                   tabPanel("Gráfico de Autocorrelação", icon = icon("chart-line"), 
+                                            sidebarLayout(
+                                              sidebarPanel(width = 3,
+                                                           selectInput("autocorr_var", h5("Selecione a variável:"), var_nomes2$titulo2),
+                                                           selectInput("autocorr_est", h5("Selecione a estação:"), est_nomes$estacao),
+                                                           dateInput("autocorr_data_i", h5("Data de início"), "2013-01-01"),
+                                                           dateInput("autocorr_data_f", h5("Data de fim"), "2020-01-01"),
+                                                           tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
+                                              ),
+                                              mainPanel(plotOutput("graph_autocorr"))
+                                            )
                                    )
                       )
              ),
@@ -428,6 +440,33 @@ server <- function(input, output){
       geom_point(data=dados_corte, aes(x=T1, y=H1), color="blue", size=2, inherit.aes=F)
   })
   
+  
+  output$graph_autocorr <- renderPlot({
+    base = dados
+    estacao = epc(input$autocorr_est)
+    variavel = tpv(input$autocorr_var)
+    Data_ini = input$autocorr_data_i
+    Data_fim = input$autocorr_data_f
+    
+    base$months <- yearmonth(base$Date) # Passando pra formato ano/mês
+    filtro <- filter(base, Station_code == toString(estacao) & Date >= toString(Data_ini) & Date <= toString(Data_fim) )
+    dados = tsibble(
+      data = ymd(filtro$Date),
+      y = filtro[[variavel]],
+      index = data
+    )
+    G1 = 
+      dados %>%
+      fill_gaps(data,y = mean(y),.full=TRUE) %>%
+      ACF(y=y, lag_max=20) %>% 
+      autoplot() +
+      labs(
+        x = 'Defasagem',
+        y = 'Autocorrelação'
+      ) +
+      coord_cartesian(ylim=c(-1,1)) +
+      theme_minimal(); G1
+  })
   
   
   ## Análise geográfica
