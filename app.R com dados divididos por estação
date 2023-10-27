@@ -9,7 +9,7 @@ stations_names_code <- read.csv("nomes_codigos_estacoes.csv", sep=",", header = 
 est_nomes <- stations_names_code
 
 # Obtenha uma lista de todos os arquivos CSV no diretório
-arquivos_csv <- list.files(path = "", pattern = "^A.*\\.csv$", full.names = TRUE)
+arquivos_csv <- list.files(pattern = "^A.*\\.csv$", full.names = TRUE)
 
 # Crie uma lista para armazenar os data frames
 lista_dataframes <- list()
