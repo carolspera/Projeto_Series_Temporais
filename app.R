@@ -1,35 +1,12 @@
-# Bibliotecas Shiny
-library(shinydashboard)
-library(leaflet)
-library(shiny)
-library(dplyr)
-library(here)
-library(fresh)
-library(shinythemes)
-library(magrittr)
-library(rvest)
-library(readxl)
-library(maps)
-library(ggplot2)
-library(reshape2)
-library(ggiraph)
-library(RColorBrewer)
-library(plotly)
-library(geojsonio)
-library(shinyWidgets)
-library(stringr)
-
-# Bibliotecas operacionais
-library(dplyr)
-library(fpp3)
-library(tsibble)
-library(zoo)
-library(readr)
+# Bibliotecas utilizadas
+library("easypackages")
+libraries("shinydashboard", "leaflet", "shiny", "dplyr", "here", "fresh", "shinythemes", "magrittr", "rvest", "readxl","maps",
+          "ggplot2", "reshape2", "ggiraph","RColorBrewer","plotly", "geojsonio", "shinyWidgets","stringr","fpp3", "tsibble", "zoo","readr")
 
 
 # Leitura dos dados
-# dados <- read.csv("dados_quase_completos.csv", sep=",", header = TRUE)
 dados <- read.csv("dados2011_2022.csv", sep=",", header = TRUE)
+
 dados$Date = as.Date(dados$Date)
 
 est_nomes <- data.frame(codigo = unique(dados$Station_code))
@@ -432,10 +409,10 @@ server <- function(input, output){
     variavel = tpv(input$subserie_var)
     Data_ini = input$subserie_data_i
     Data_fim = input$subserie_data_f
-    
+
     base$months <- yearmonth(base$Date) # Passando pra formato ano/mês
     filtro <- filter(base, Station_code == toString(estacao) & Date >= toString(Data_ini) & Date <= toString(Data_fim) )
-    
+
     filtro$y <- filtro[[variavel]]
     medias_T <- aggregate( y ~ months, data = filtro , FUN="mean" )
     # Convertendo pra Tsibble
@@ -444,13 +421,13 @@ server <- function(input, output){
       y = medias_T$y,
       index = data
     )
-    
-    G4 = 
-      dados_mensais %>% 
-      gg_subseries(y) + 
+
+    G4 =
+      dados_mensais %>%
+      gg_subseries(y) +
       labs(
-        y = vpl(variavel), 
-        x = 'Tempo (em anos)', 
+        y = vpl(variavel),
+        x = 'Tempo (em anos)',
         title = paste(vpt(variavel), "em meses sucessivos")
       ); G4
   })
@@ -461,10 +438,17 @@ server <- function(input, output){
     Data_ini = input$wetbulb_data_i
     Data_fim = input$wetbulb_data_f
     
-    temperatures <- seq(0, 50, length.out=100)
-    humidities <- seq(0, 100, length.out=100)
-
-    grid <- expand.grid(T1=temperatures, H1=humidities)
+    dados_corte = filter(base, Station_code == toString(estacao) & Date >= toString(Data_ini) & Date <= toString(Data_fim))
+    
+    temperatures <- dados_corte$Tair_mean..c.
+    humidities <- dados_corte$Rh_mean..porc.
+    
+    dados_corte = data.frame(T1=temperatures, H1=humidities)
+    
+    temperatures <- seq(0, 50, length.out=50)
+    humidities <- seq(0, 100, length.out=50)
+    
+    grid <- expand.grid(T=temperatures, H=humidities)
     grid$W <- grid$T - (0.55 * (1 - grid$H/100) * (grid$T - 14.5))
     
     # Definindo as zonas
@@ -475,15 +459,7 @@ server <- function(input, output){
     grid$Z <- ifelse(grid$W <= W_amarela, "Confortável",
                      ifelse(grid$W <= W_laranja, "Risco",
                             ifelse(grid$W <= W_vermelha, "Crítico", "Perigoso")))
-
-    # Leitura dos dados
-    dados_corte = filter(base, Station_code == toString(estacao) & Date >= toString(Data_ini) & Date <= toString(Data_fim))
-
-    temperatures <- dados_corte$Tair_mean..c.
-    humidities <- dados_corte$Rh_mean..porc.
-
-    dados_corte = data.frame(T2=temperatures, H2=humidities)
-
+    
     # Cores
     colors_light <- c("Confortável"="#a8e6cf",
                       "Risco"="#ffd3b6",
@@ -491,12 +467,12 @@ server <- function(input, output){
                       "Perigoso"="#ff8b94")
     
     # Plot
-    ggplot(grid, aes(x=T1, y=H1, fill=Z)) +
+    ggplot(grid, aes(x=T, y=H, fill=Z)) +
       geom_tile() +
       scale_fill_manual(values=colors_light, breaks=names(colors_light)) +  # Definindo a escala de preenchimento como discreta
       labs(title="Efeito de Wet Bulb na Habitabilidade Humana", x="Temperatura Ambiente (°C)", y="Umidade Relativa (%)", fill="Zonas") +
       theme_minimal() +
-      geom_point(data=dados_corte, aes(x=T2, y=H2), color="blue", size=2, inherit.aes=F)
+      geom_point(data=dados_corte, aes(x=T1, y=H1), color="blue", size=2, inherit.aes=F)
   })
   
   
