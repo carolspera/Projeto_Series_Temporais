@@ -1,34 +1,52 @@
-# Bibliotecas utilizadas
-library("easypackages")
-libraries("shinydashboard", "leaflet", "shiny", "dplyr", "here", "fresh", "shinythemes", "magrittr", "rvest", "readxl","maps",
-          "ggplot2", "reshape2", "ggiraph","RColorBrewer","plotly", "geojsonio", "shinyWidgets","stringr","fpp3", "tsibble", "zoo","readr")
+# Bibliotecas Shiny
+library(shinydashboard)
+library(leaflet)
+library(shiny)
+library(dplyr)
+library(here)
+library(fresh)
+library(shinythemes)
+library(magrittr)
+library(rvest)
+library(readxl)
+library(maps)
+library(ggplot2)
+library(reshape2)
+library(ggiraph)
+library(RColorBrewer)
+library(plotly)
+library(geojsonio)
+library(shinyWidgets)
+library(stringr)
+
+# Bibliotecas operacionais
+library(dplyr)
+library(fpp3)
+library(tsibble)
+library(zoo)
+library(readr)
 
 
 # Leitura dos dados
 stations_names_code <- read.csv("nomes_codigos_estacoes.csv", sep=",", header = TRUE)
 est_nomes <- stations_names_code
 
-# Obtenha uma lista de todos os arquivos CSV no diretório
-arquivos_csv <- list.files(pattern = "^A.*\\.csv$", full.names = TRUE)
+# Lista de todas as estações no diretório
+arquivos_csv <- list.files(pattern = "^[ABFS].*\\.csv$", full.names = TRUE)
 
-# Crie uma lista para armazenar os data frames
+# Lista para armazenar os data frames
 lista_dataframes <- list()
 
 # Loop para ler os arquivos CSV
 for (arquivo in arquivos_csv) {
-  # Extrai o nome do arquivo sem a extensão
+  # Nome do arquivo sem a extensão
   nome_arquivo <- tools::file_path_sans_ext(basename(arquivo))
-  
-  # Leia o arquivo CSV e atribua ao data frame correspondente ao nome do arquivo
   assign(nome_arquivo, read.csv(arquivo))
-  
-  # Adicione o data frame à lista
   lista_dataframes[[nome_arquivo]] <- get(nome_arquivo)
 }
 
 # Loop para iterar sobre os data frames
 for (df_nome in names(lista_dataframes)) {
-  # Acessa o data frame pelo seu nome
   df <- lista_dataframes[[df_nome]]
   
   # Converte a coluna "Date" para o formato Date
