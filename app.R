@@ -1,7 +1,29 @@
-# Bibliotecas utilizadas
-library("easypackages")
-libraries("shinydashboard", "leaflet", "shiny", "dplyr", "here", "fresh", "shinythemes", "magrittr", "rvest", "readxl","maps",
-          "ggplot2", "reshape2", "ggiraph","RColorBrewer","plotly", "geojsonio", "shinyWidgets","stringr","fpp3", "tsibble", "zoo","readr")
+# Bibliotecas Shiny
+library(shinydashboard)
+library(leaflet)
+library(shiny)
+library(here)
+library(fresh)
+library(shinythemes)
+library(magrittr)
+library(rvest)
+library(readxl)
+library(maps)
+library(ggplot2)
+library(reshape2)
+library(ggiraph)
+library(RColorBrewer)
+library(plotly)
+library(geojsonio)
+library(shinyWidgets)
+library(stringr)
+
+# Bibliotecas operacionais
+library(dplyr)
+library(fpp3)
+library(tsibble)
+library(zoo)
+library(readr)
 
 
 # Leitura dos dados
@@ -409,10 +431,10 @@ server <- function(input, output){
     variavel = tpv(input$subserie_var)
     Data_ini = input$subserie_data_i
     Data_fim = input$subserie_data_f
-
+    
     base$months <- yearmonth(base$Date) # Passando pra formato ano/mês
     filtro <- filter(base, Station_code == toString(estacao) & Date >= toString(Data_ini) & Date <= toString(Data_fim) )
-
+    
     filtro$y <- filtro[[variavel]]
     medias_T <- aggregate( y ~ months, data = filtro , FUN="mean" )
     # Convertendo pra Tsibble
@@ -421,7 +443,7 @@ server <- function(input, output){
       y = medias_T$y,
       index = data
     )
-
+    
     G4 =
       dados_mensais %>%
       gg_subseries(y) +
@@ -502,7 +524,7 @@ server <- function(input, output){
       coord_cartesian(ylim=c(-1,1)) +
       theme_minimal(); G1
   })
- 
+  
   output$graph_decomp <- renderPlot({
     base = dados
     estacao = epc(input$decomp_est)
@@ -536,7 +558,7 @@ server <- function(input, output){
     Data_ini = input$dif_data_i
     Data_fim = input$dif_data_f
     defasagem = input$dif_defasagem
-
+    
     base$months <- yearmonth(base$Date) # Passando pra formato ano/mês
     filtro <- filter(base, Station_code == toString(estacao) & Date >= toString(Data_ini) & Date <= toString(Data_fim) )
     dados = tsibble(
@@ -849,23 +871,23 @@ server <- function(input, output){
       
       mapa
       
-    #   #Mapa para Velocidade do vento a 2 metros de altura
-    # }else if (input$var == "Velocidade do vento a 2 metros de altura"){
-    #   media_ws2 <- as.numeric(medias_por_ano$"Ws_2..m.s.1.")
-    #   ano <- input$ano
-    #   bins <- seq(-3.3, -3.1, by = 0.05)
-    #   data_filtered <- subset(medias_por_ano, Ano == ano)
-    #   m <- data_filtered$"Ws_2..m.s.1."
-    #   pal <- colorBin("YlOrRd", domain = data_filtered$media_ws2, bins = bins)
-    #   labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
-    #                     data_filtered$Station, data_filtered$media_ws2) %>% lapply(htmltools::HTML)
-    #   mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
-    #     addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15,
-    #                popup = ~paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual: </b>", round(as.numeric(m),2), " m/s", "<br>"),
-    #                radius = 30000, color = ~pal(as.numeric(Ws_2..m.s.1.)), fillOpacity = 1) %>%
-    #     addLegend("bottomright", pal = pal, values = ~as.numeric(Ws_2..m.s.1.), title = "Velocidade do vento a 2 metros de altura (m/s)", opacity = 1)
-    #   
-    #   mapa
+      #   #Mapa para Velocidade do vento a 2 metros de altura
+      # }else if (input$var == "Velocidade do vento a 2 metros de altura"){
+      #   media_ws2 <- as.numeric(medias_por_ano$"Ws_2..m.s.1.")
+      #   ano <- input$ano
+      #   bins <- seq(-3.3, -3.1, by = 0.05)
+      #   data_filtered <- subset(medias_por_ano, Ano == ano)
+      #   m <- data_filtered$"Ws_2..m.s.1."
+      #   pal <- colorBin("YlOrRd", domain = data_filtered$media_ws2, bins = bins)
+      #   labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
+      #                     data_filtered$Station, data_filtered$media_ws2) %>% lapply(htmltools::HTML)
+      #   mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
+      #     addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15,
+      #                popup = ~paste0(sep = " ","<b>", Station, "<b><br>","<b>Média anual: </b>", round(as.numeric(m),2), " m/s", "<br>"),
+      #                radius = 30000, color = ~pal(as.numeric(Ws_2..m.s.1.)), fillOpacity = 1) %>%
+      #     addLegend("bottomright", pal = pal, values = ~as.numeric(Ws_2..m.s.1.), title = "Velocidade do vento a 2 metros de altura (m/s)", opacity = 1)
+      #   
+      #   mapa
       
       #Mapa para Rajada de vento
     }else if (input$var == "Rajada de vento"){
