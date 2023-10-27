@@ -26,7 +26,6 @@ for (arquivo in arquivos_csv) {
   lista_dataframes[[nome_arquivo]] <- get(nome_arquivo)
 }
 
-
 # Loop para iterar sobre os data frames
 for (df_nome in names(lista_dataframes)) {
   # Acessa o data frame pelo seu nome
@@ -39,10 +38,7 @@ for (df_nome in names(lista_dataframes)) {
   lista_dataframes[[df_nome]] <- df
 }
 
-
 cidades <- read.csv("CatalogoEstaçõesAutomáticas.csv", sep=";", header = TRUE)
-
-
 
 # Manipulação dos nomes das estações
 epc = function(e) filter(est_nomes, estacao == e)$codigo # converte estacao para codigo
