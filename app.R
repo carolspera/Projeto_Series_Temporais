@@ -66,12 +66,8 @@ carrega_estacao = function(cod_estacao){
   return(dados)
 }
 
-
-variaveis <- c("Tair_mean..c.", "Tair_min..c.", "Tair_max..c.","Dew_tmean..c.", "Dew_tmin..c.", "Dew_tmax..c.", "Dry_bulb_t..c.",
-               "Rainfall..mm.", "Rh_mean..porc.", "Rh_max..porc.", "Rh_min..porc.", "Ws_10..m.s.1.", "Ws_2..m.s.1.", "Ws_gust..m.s.1.",
-               "Wd..degrees.", "Sr..Mj.m.2.day.1.") #"Ra..Mj.m.2.day.1." e "Patm..mB."
-
 medias_por_ano <- read_csv("medias_por_ano_corrigido.csv", col_types = cols(...1 = col_skip()))
+
 
 # UI
 ui <- fluidPage(
