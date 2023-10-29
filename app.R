@@ -69,6 +69,24 @@ carrega_estacao = function(cod_estacao){
 medias_por_ano <- read_csv("medias_por_ano_corrigido.csv", col_types = cols(...1 = col_skip()))
 
 
+intervalos <- list(
+  "Tair_mean..c." = seq(10, 32, by = 2),
+  "Tair_min..c." = seq(0, 30, by = 5),
+  "Tair_max..c." = seq(10, 40, by = 5),
+  "Dew_tmean..c." = seq(4, 24, by = 2),
+  "Dew_tmin..c." = seq(0, 25, by = 5),
+  "Dew_tmax..c." = seq(10, 30, by = 3),
+  "Dry_bulb_t..c." = seq(10, 32, by = 2),
+  "Rainfall..mm." = seq(0, 15, by = 1),
+  "Rh_mean..porc." = seq(10, 100, by = 10),
+  "Rh_max..porc." = seq(40, 100, by = 5),
+  "Rh_min..porc." = seq(10, 90, by = 10),
+  "Ws_10..m.s.1." = seq(0, 8, by = 1),
+  "Ws_gust..m.s.1." = seq(0, 18, by = 2),
+  "Wd..degrees." = seq(0, 360, by = 60),
+  "Sr..Mj.m.2.day.1." = seq(0, 70, by = 5),
+)
+
 # UI
 ui <- fluidPage(
   navbarPage(theme = shinytheme("flatly"), collapsible = TRUE,
