@@ -123,8 +123,8 @@ ui <- fluidPage(
                                               ),
                                               mainPanel(plotOutput("graph_media_movel"),
                                                         helpText("Gráficos de médias móveis são úteis para identificar tendências na série temporal. A linha das médias móveis representa o valor médio dos pontos de dados dentro da janela de tempo especificada que você pode selecionar.",tags$br(),
-                                                                 "- Se a linha estiver subindo, há uma indicação de uma tendência ascendente nos dados. Se a linha estiver em declínio, há uma indicação de uma tendência descendente.",tags$br(),
-                                                                 "- Observe casos em que a média móvel e os dados brutos divergem significativamente. A divergência pode indicar potenciais pontos de viragem ou reversões na tendência."))
+                                                                 "Se a linha estiver subindo, há uma indicação de uma tendência ascendente nos dados. Se a linha estiver em declínio, há uma indicação de uma tendência descendente.",tags$br(),
+                                                                 "Observe casos em que a média móvel e os dados brutos divergem significativamente. A divergência pode indicar potenciais pontos de viragem ou reversões na tendência."))
                                             )
                                    ),
                                    tabPanel("Gráfico de Sazonalidade", icon = icon("chart-line"), 
@@ -152,12 +152,14 @@ ui <- fluidPage(
                                               ),
                                               mainPanel(plotOutput("graph_lag"),
                                                         helpText("Gráficos de defasagens são úteis para a avaliar autocorrelação, ou seja, verificam se uma série temporal é aleatória ou não.",tags$br(),
+                                                                 tags$br(),
                                                                  "- O eixo horizontal mostra o valor da variável.",tags$br(),
                                                                  "- O eixo vertical mostra o valor da variável para k = 6 meses (primeiro plot) e k = 12 meses (segundo plot).",tags$br(),
-                                                                 "- As cores representam cada mês do ano.",tags$br(),
-                                                                 "- Se os pontos no gráfico de defasagens se agruparem em torno da linha diagonal tracejada em cor cinza, há indicação  de autocorrelação positiva. Ou seja, a variável está positivamente correlacionada com seus valores passados.",tags$br(),
-                                                                 "- Se os pontos se agruparem em torno de uma linha diagonal do canto superior esquerdo ao canto inferior direito, isso sugere autocorrelação negativa. Neste caso, a variável está negativamente correlacionada com seus valores passados.",tags$br(),
-                                                                 "- Se os pontos estiverem espalhados aleatoriamente sem formar um padrão claro, há indicação de que não há autocorrelação significativa."))
+                                                                 tags$br(),
+                                                                 "As cores representam cada mês do ano.",tags$br(),
+                                                                 "Se os pontos no gráfico de defasagens se agruparem em torno da linha diagonal tracejada em cor cinza, há indicação  de autocorrelação positiva. Ou seja, a variável está positivamente correlacionada com seus valores passados.",tags$br(),
+                                                                 "Se os pontos se agruparem em torno de uma linha diagonal do canto superior esquerdo ao canto inferior direito, isso sugere autocorrelação negativa. Neste caso, a variável está negativamente correlacionada com seus valores passados.",tags$br(),
+                                                                 "Se os pontos estiverem espalhados aleatoriamente sem formar um padrão claro, há indicação de que não há autocorrelação significativa."))
                                             )
                                    ),
                                    tabPanel("Gráfico de Sub-séries", icon = icon("chart-line"), 
@@ -171,12 +173,14 @@ ui <- fluidPage(
                                               ),
                                               mainPanel(plotOutput("graph_subserie"),
                                                         helpText("Gráficos de sub-séries são úteis para identificar mudanças em períodos específicos e padrões sazonais. Neste gráfico, os dados de cada mês são coletados de forma conjunta e separados em mini plots. Esta forma de gráfico permite que o padrão sazonal subjacente seja visualizado de forma mais clara.",tags$br(),
+                                                                 tags$br(),
                                                                  "- Eixo vertical: variável resposta.",tags$br(),
                                                                  "- Eixo horizontal: Tempo ordenado por mês do ano. Por exemplo, todos os valores de janeiro são plotados (em ordem cronológica), depois todos os valores de fevereiro, e assim por diante.",tags$br(),
-                                                                 "- As linhas em azul representam as médias dos meses conforme os anos escolhidos.",tags$br(),
-                                                                 "- Compare as alturas dos picos e vales em diferentes meses. Esta comparação ajuda a identificar os meses com maior impacto na variável resposta.",tags$br(),
-                                                                 "- Observe se há um padrão dentro do mês (por exemplo, janeiro e dezembro apresentam padrões semelhantes?).",tags$br(),
-                                                                 "- Procure mudanças nos padrões sazonais em diferentes meses. Uma modificação pode indicar uma mudança no início ou no final de uma temporada específica."))
+                                                                 tags$br(),
+                                                                 "As linhas em azul representam as médias dos meses conforme os anos escolhidos.",tags$br(),
+                                                                 "Compare as alturas dos picos e vales em diferentes meses. Esta comparação ajuda a identificar os meses com maior impacto na variável resposta.",tags$br(),
+                                                                 "Observe se há um padrão dentro do mês (por exemplo, janeiro e dezembro apresentam padrões semelhantes?).",tags$br(),
+                                                                 "Procure mudanças nos padrões sazonais em diferentes meses. Uma modificação pode indicar uma mudança no início ou no final de uma temporada específica."))
                                             )
                                    ),
                                    tabPanel("Wetbulb", icon = icon("chart-line"), 
@@ -187,7 +191,18 @@ ui <- fluidPage(
                                                            dateInput("wetbulb_data_f", h5("Data de fim"), "2020-01-01"),
                                                            tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
                                               ),
-                                              mainPanel(plotOutput("graph_wetbulb"))
+                                              mainPanel(plotOutput("graph_wetbulb"),
+                                                        helpText("O gráfico visa visualizar como as diferentes combinações de temperatura e umidade afetam a habitabilidade humana. As zonas de conforto são identificadas com cores diferentes para indicar diferentes níveis de conforto, risco, criticidade ou perigo, dependendo das condições de Wet Bulb.",tags$br(),
+                                                                 tags$br(),
+                                                                 "- Eixo X, Temperatura Ambiente (°C): Este eixo representa a temperatura ambiente em graus Celsius.",tags$br(),
+                                                                 "- Eixo Y, Umidade Relativa (%): Este eixo representa a umidade relativa em percentagem.",tags$br(),
+                                                                 "- Legenda, Zonas: Esta legenda fornece uma chave para as diferentes zonas identificadas no gráfico. As zonas são caracterizadas por,",tags$br(),
+                                                                 "Confortável: Uma cor verde pálido.",tags$br(),
+                                                                 "Risco: Uma cor laranja claro.",tags$br(),
+                                                                 "Crítico: Uma cor vermelha claro.",tags$br(),
+                                                                 "Perigoso: Uma cor vermelha mais escura.",tags$br(),
+                                                                 tags$br(),
+                                                                 "Os pontos azuis representam os dados observados de temperatura e umidade."))
                                             )
                                    ),
                                    tabPanel("Gráfico de Autocorrelação", icon = icon("chart-line"), 
@@ -199,7 +214,13 @@ ui <- fluidPage(
                                                            dateInput("autocorr_data_f", h5("Data de fim"), "2020-01-01"),
                                                            tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
                                               ),
-                                              mainPanel(plotOutput("graph_autocorr"))
+                                              mainPanel(plotOutput("graph_autocorr"),
+                                                        helpText("Este gráfico é útil para identificar padrões temporais na série de dados. Por exemplo, se houver uma autocorrelação significativa em uma determinada defasagem, isso pode indicar a presença de padrões sazonais ou tendências temporais nos dados.",tags$br(),
+                                                                 tags$br(),
+                                                                 "- Eixo X (Defasagem): A defasagem (lag) representa o número de períodos anteriores que estão sendo usados para calcular a correlação com o período atual. Por exemplo, uma defasagem de 1 indica a correlação entre os dados no momento atual e os dados de um período anterior.",tags$br(),
+                                                                 "- Eixo Y (Autocorrelação): A autocorrelação é uma medida estatística que indica o grau de correlação entre uma série temporal e uma versão deslocada (defasada) de si mesma. Varia de -1 a 1, onde 1 indica uma correlação perfeita, -1 indica uma correlação inversa perfeita e 0 indica ausência de correlação.",tags$br(),
+                                                                 "- Linhas verticais: As linhas azuis no gráfico representam os valores de autocorrelação para diferentes defasagens. Cada ponto no gráfico indica a autocorrelação para uma determinada defasagem.",tags$br(),
+                                                                 "- Área entre as linhas pontilhadas azuis: A área sombreada em torno de zero indica o intervalo de confiança para a autocorrelação. Pontos fora desta área podem ser estatisticamente significativos.",tags$br()))
                                             )
                                    ),
                                    tabPanel("Gráfico de Decomposição", icon = icon("chart-line"), 
@@ -211,7 +232,15 @@ ui <- fluidPage(
                                                            dateInput("decomp_data_f", h5("Data de fim"), "2020-01-01"),
                                                            tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
                                               ),
-                                              mainPanel(plotOutput("graph_decomp"))
+                                              mainPanel(plotOutput("graph_decomp"),
+                                                        helpText("- Série Temporal Original: A linha no gráfico representa a série temporal original, que são os dados de uma variável meteorológica (como temperatura, precipitação, etc.) ao longo do tempo.",tags$br(),
+                                                                 "- Componente de Tendência (Trend): A linha mais suave no gráfico representa a tendência da série temporal. É uma estimativa de como a variável muda ao longo do tempo, removendo os efeitos sazonais e irregulares.",tags$br(),
+                                                                 "- Componente Sazonal (Seasonal): As flutuações que ocorrem em padrões regulares dentro da série temporal são representadas pela componente sazonal. Por exemplo, se os dados exibirem padrões sazonais, como variações anuais de temperatura, essas variações serão capturadas por esta componente.",tags$br(),
+                                                                 "- Componente de Irregularidade (Residuals): Esta componente representa os resíduos ou erros que não podem ser explicados pela tendência ou pela sazonalidade. São as variações imprevisíveis ou aleatórias nos dados.",tags$br(),
+                                                                 tags$br(),
+                                                                 "Este tipo de gráfico é útil para entender a estrutura subjacente de uma série temporal. Permite separar os diferentes componentes que contribuem para as variações nos dados ao longo do tempo. A decomposição facilita a identificação de padrões sazonais, tendências de longo prazo e flutuações irregulares.",tags$br(),
+                                                                 tags$br(),
+                                                                 "No contexto meteorológico, por exemplo, a tendência pode representar uma mudança gradual nas temperaturas ao longo dos anos, a componente sazonal pode indicar variações sazonais previsíveis (como as estações do ano), e os resíduos podem representar variações imprevisíveis de curto prazo. Essa informação é valiosa para a interpretação e modelagem de séries temporais."))
                                             )
                                    ),
                                    tabPanel("Gráfico de Diferenciação", icon = icon("chart-line"),
@@ -224,7 +253,11 @@ ui <- fluidPage(
                                                            dateInput("dif_data_f", h5("Data de fim"), "2020-01-01"),
                                                            tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
                                               ),
-                                              mainPanel(plotOutput("graph_dif"))
+                                              mainPanel(plotOutput("graph_dif"),
+                                                        helpText("O gráfico de diferenciação exibe a diferença entre os valores de uma variável em relação a um número específico de períodos de tempo (defasagem). Vamos analisar a interpretação do gráfico:",tags$br(),
+                                                                 "- Eixo X (horizontal): Representa o tempo ou os períodos de observação. Cada ponto ao longo do eixo representa uma observação em um determinado intervalo de tempo.",tags$br(),
+                                                                 "- Eixo Y (vertical): Indica a diferença entre os valores da variável selecionada em relação à defasagem especificada. A defasagem determina quantos períodos de tempo são subtraídos entre os valores.",tags$br(),
+                                                                 "- Linha no Gráfico: A linha conecta os pontos, mostrando como a diferença sazonal varia ao longo do tempo. Uma linha ascendente indica que a diferença está aumentando, enquanto uma linha descendente indica que está diminuindo.",tags$br()))
                                             )
                                    ),
                                    tabPanel("Teste de Cox-Stuart", icon = icon("chart-line"),
@@ -239,7 +272,10 @@ ui <- fluidPage(
                                               ),
                                               mainPanel(plotOutput("graph_cox_stuart"),
                                                         br(), br(),
-                                                        verbatimTextOutput("stats"),)
+                                                        verbatimTextOutput("stats"),
+                                                        helpText("O gráfico mostra a série temporal ajustada, que é a série original após a remoção da componente sazonal. Isso ajuda a visualizar os padrões de variação que não são explicados pela sazonalidade. Por exemplo, se houver uma tendência de longo prazo ou padrões de curto prazo, eles serão mais visíveis na série ajustada.",tags$br(),
+                                                                 tags$br(),
+                                                                 "O teste de Cox-Stuart é uma ferramenta estatística utilizada para verificar se existe uma tendência significativa em uma série temporal. Ele avalia se há uma mudança sistemática na direção dos valores ao longo do tempo. A estatística de teste é comparada a uma distribuição de probabilidade para determinar se a tendência é estatisticamente significativa. O valor-p indica a probabilidade de observar uma estatística de teste tão extrema quanto a observada, se não houver tendência na série. Se o valor-p for pequeno (geralmente abaixo de 0.05), podemos rejeitar a hipótese nula de ausência de tendência."))
                                             )
                                    )
                       )
@@ -323,9 +359,9 @@ server <- function(input, output){
     data_i = input$mediamovel_data_i
     data_f = input$mediamovel_data_f
     estacao = epc(input$mediamovel_est)
-
+    
     dados = carrega_estacao(estacao)
-
+    
     k = input$mediamovel_k
     variavel = tpv(input$mediamovel_var)
     
@@ -631,7 +667,7 @@ server <- function(input, output){
     ano <- input$ano
     variavel = input$var
     var_nome = tpv(variavel)
-
+    
     media_variavel <- as.numeric(medias_por_ano[[var_nome]])
     
     bins <- intervalos[[var_nome]]
@@ -642,8 +678,8 @@ server <- function(input, output){
                       data_filtered$Station, data_filtered$media_variavel) %>% lapply(htmltools::HTML)
     mapa <- leaflet(data = data_filtered) %>% addTiles() %>%
       addCircles(lng = ~as.numeric(Longitude..degrees.), lat = ~as.numeric(Latitude..degrees.), weight = 15,
-                  popup = ~ paste0(sep = " ","<b>", Station, "<br>", vpl(var_nome), " média anual: ", round(as.numeric(m),2),"</b><br>"),
-                  radius = 30000, color = ~pal(as.numeric(data_filtered[[var_nome]])), fillOpacity = 1) %>%
+                 popup = ~ paste0(sep = " ","<b>", Station, "<br>", vpl(var_nome), " média anual: ", round(as.numeric(m),2),"</b><br>"),
+                 radius = 30000, color = ~pal(as.numeric(data_filtered[[var_nome]])), fillOpacity = 1) %>%
       addLegend("bottomright", pal = pal, values = ~as.numeric(data_filtered[[var_nome]]), title = variavel, opacity = 1)
     
     mapa
