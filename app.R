@@ -24,6 +24,8 @@ library(fpp3)
 library(tsibble)
 library(zoo)
 library(readr)
+library(imputeTS) # biblioteca que faz a interpolação das observações
+
 
 # Leitura dos dados
 est_nomes <- read.csv("nomes_codigos_estacoes.csv", sep=",", header = TRUE)
@@ -54,6 +56,22 @@ tpv = function(t) filter(var_nomes, titulo == t)$variavel # converte título par
 carrega_estacao = function(cod_estacao){
   dados = read.csv(paste("estacoes/", cod_estacao, ".csv", sep=""), sep=",", header = TRUE)
   dados$Date = as.Date(dados$Date)
+
+  # adiciona as datas faltantes
+  menor_dia = min(dados$Date, na.rm=TRUE)
+  maior_dia = max(dados$Date, na.rm=TRUE)
+
+  ts = seq.Date(menor_dia, maior_dia, by="day")
+  df = data.frame(Date=ts)
+  dados = merge(df, dados, by='Date', all.x = TRUE, all.y = F)
+
+  dados[is.na(dados$Station_code),"Station_code"] = unique(na.omit(dados$Station_code))
+  dados[is.na(dados$Station),"Station"] = unique(na.omit(dados$Station))
+  dados[is.na(dados$UF),"UF"] = unique(na.omit(dados$UF))
+
+  # imputa os dados
+  dados <- na_seadec(dados, algorithm = "interpolation")
+  
   return(dados)
 }
 
