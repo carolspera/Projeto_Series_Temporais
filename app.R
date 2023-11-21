@@ -71,7 +71,7 @@ carrega_estacao = function(cod_estacao){
   dados[is.na(dados$UF),"UF"] = unique(na.omit(dados$UF))
   
   # imputa os dados
-  dados <- na_seadec(dados, algorithm = "interpolation")
+  dados <- na_interpolation(dados, option = "stine")
   
   return(dados)
 }
