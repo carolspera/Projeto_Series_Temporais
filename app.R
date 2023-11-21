@@ -76,7 +76,7 @@ carrega_estacao = function(cod_estacao){
   return(dados)
 }
 
-medias_por_ano <- read_csv("medias_por_ano_corrigido.csv", col_types = cols(...1 = col_skip()))
+medias_por_ano <- read_csv("medias_por_ano.csv", col_types = cols(...1 = col_skip()))
 
 intervalos <- list(
   "Tair_mean..c." = seq(10, 32, by = 2),
@@ -255,7 +255,9 @@ ui <- fluidPage(
                                                                       <li> Eixo Y (Autocorrelação): A autocorrelação é uma medida estatística que indica o grau de correlação entre uma série temporal e uma versão deslocada (defasada) de si mesma. Varia de -1 a 1, onde 1 indica uma correlação perfeita, -1 indica uma correlação inversa perfeita e 0 indica ausência de correlação.</li>
                                                                       <li> Linhas verticais: As linhas azuis no gráfico representam os valores de autocorrelação para diferentes defasagens. Cada ponto no gráfico indica a autocorrelação para uma determinada defasagem.</li>
                                                                       <li> Área entre as linhas pontilhadas azuis: A área sombreada em torno de zero indica o intervalo de confiança para a autocorrelação. Pontos fora desta área podem ser estatisticamente significativos.</li>
-                                                                      </ul>")))
+                                                                      </ul>",
+                                                                      "<br>",
+                                                                      "Abaixo do gráfico encontra-se o valor calculado, utilizando o modelo ARIMA, do valor de ordem do termo de médias móveis.")))
                                             )
                                    ),
                                    tabPanel("Gráfico de Decomposição", icon = icon("chart-line"), 
