@@ -226,6 +226,8 @@ ui <- fluidPage(
                                                            tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
                                               ),
                                               mainPanel(plotOutput("graph_autocorr"),
+                                                        br(), br(),
+                                                        verbatimTextOutput("stats_autocor"),
                                                         helpText(HTML("Este gráfico é útil para identificar padrões temporais na série de dados. Por exemplo, se houver uma autocorrelação significativa em uma determinada defasagem, isso pode indicar a presença de padrões sazonais ou tendências temporais nos dados.<br>",
                                                                       "<br>",
                                                                       "<ul>
@@ -540,22 +542,56 @@ server <- function(input, output){
     
     base$months <- yearmonth(base$Date) # Passando pra formato ano/mês
     filtro <- filter(base, Station_code == toString(estacao) & Date >= toString(Data_ini) & Date <= toString(Data_fim) )
-    dados = tsibble(
-      data = ymd(filtro$Date),
-      y = filtro[[variavel]],
+    filtro$y <- filtro[[variavel]]
+    medias_T <- aggregate( y ~ months, data = filtro , FUN="mean" )
+    
+    dados_mensais = tsibble(
+      data = medias_T$months,
+      y = medias_T$y,
       index = data
     )
-    G1 = 
-      dados %>%
+    
+    decomposicao = dados_mensais %>%
       fill_gaps(data,y = mean(y),.full=TRUE) %>%
-      ACF(y=y, lag_max=20) %>% 
+      model(STL(y ~ season(window = 12))) %>%
+      components()
+    
+    # Obter a série sem tendência e sazonalidade (componente remainder)
+    serie_sem_tendencia_sazonalidade <- decomposicao %>%
+      pull(remainder)
+    
+    G1 <- dados_mensais %>%
+      fill_gaps(data, y = mean(serie_sem_tendencia_sazonalidade), .full = TRUE) %>%
+      ACF(y = .$y, lag_max = 20) %>%
       autoplot() +
       labs(
         x = 'Defasagem',
         y = 'Autocorrelação'
       ) +
-      coord_cartesian(ylim=c(-1,1)) +
-      theme_minimal(); G1
+      coord_cartesian(ylim = c(-1, 1)) +
+      theme_minimal()
+    G1
+  })
+  
+  output$stats_autocor <- renderPrint({
+    estacao = epc(input$autocorr_est)
+    base = carrega_estacao(estacao)
+    variavel = tpv(input$autocorr_var)
+    Data_ini = input$autocorr_data_i
+    Data_fim = input$autocorr_data_f
+    
+    base$months <- yearmonth(base$Date) # Passando pra formato ano/mês
+    filtro <- filter(base, Station_code == toString(estacao) & Date >= toString(Data_ini) & Date <= toString(Data_fim) )
+    dados = tsibble(
+      data = ymd(filtro$Date),
+      y = filtro[[variavel]],
+      index = data
+    )
+    
+    modelo_auto_arima <- auto.arima(dados$y) # Encontra a ordem do processo de médias móveis
+    q_valor <- arimaorder(modelo_auto_arima)[3]
+    
+    return(paste("O valor da ordem do termo de médias móveis (q) é:", q_valor))
   })
   
   output$graph_autocorr_parcial <- renderPlot({
@@ -567,22 +603,35 @@ server <- function(input, output){
     
     base$months <- yearmonth(base$Date) # Passando pra formato ano/mês
     filtro <- filter(base, Station_code == toString(estacao) & Date >= toString(Data_ini) & Date <= toString(Data_fim) )
-    dados = tsibble(
-      data = ymd(filtro$Date),
-      y = filtro[[variavel]],
+    filtro$y <- filtro[[variavel]]
+    medias_T <- aggregate( y ~ months, data = filtro , FUN="mean" )
+    
+    dados_mensais = tsibble(
+      data = medias_T$months,
+      y = medias_T$y,
       index = data
     )
-    G1 = 
-      dados %>%
-      fill_gaps(data,y = mean(y),.full=TRUE) %>%
-      pacf(y, lag_max=20) %>% 
+    
+    decomposicao = dados_mensais %>%
+      fill_gaps(data, y = mean(y), .full = TRUE) %>%
+      model(STL(y ~ season(window = 12))) %>%
+      components()
+    
+    # Obter a série sem tendência e sazonalidade (componente de erro)
+    serie_sem_tendencia_sazonalidade <- decomposicao %>%
+      pull(remainder)
+    
+    G1 <- dados_mensais %>%
+      fill_gaps(data, y = mean(serie_sem_tendencia_sazonalidade), .full = TRUE) %>%
+      {pacf(.$y, lag.max = 20)} %>%
       autoplot() +
-      labs( 
+      labs(
         x = 'Defasagem',
         y = 'Autocorrelação parcial'
       ) +
-      coord_cartesian(ylim=c(-1,1)) +
-      theme_minimal(); G1
+      coord_cartesian(ylim = c(-1, 1)) +
+      theme_minimal()
+    G1
   })
   
   output$stats_autocorpar <- renderPrint({
@@ -600,10 +649,10 @@ server <- function(input, output){
       index = data
     )
     
-    modelo_auto_arima <- auto.arima(dados$y) # Encontra a ordem do processo de médias móveis
-    q_valor <- arimaorder(modelo_auto_arima)[[3]]
+    modelo_auto_arima <- auto.arima(dados$y) # Encontra o número de termos autorregressivos (p) no modelo
+    p_valor <- arimaorder(modelo_auto_arima)[1]
     
-    return(paste("O valor da ordem do termo de médias móveis (q) é:", q_valor))
+    return(paste("O número de termos autorregressivos (p) no modelo é:", p_valor))
   })
   
   output$graph_decomp <- renderPlot({
