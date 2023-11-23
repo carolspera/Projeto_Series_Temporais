@@ -72,6 +72,7 @@ carrega_estacao = function(cod_estacao){
   
   # imputa os dados
   dados <- na_interpolation(dados, option = "stine")
+  # dados <- na_seadec(dados, algorithm = "interpolation")
   
   return(dados)
 }
@@ -235,7 +236,9 @@ ui <- fluidPage(
                                                                       <li> Eixo Y (Autocorrelação): A autocorrelação é uma medida estatística que indica o grau de correlação entre uma série temporal e uma versão deslocada (defasada) de si mesma. Varia de -1 a 1, onde 1 indica uma correlação perfeita, -1 indica uma correlação inversa perfeita e 0 indica ausência de correlação.</li>
                                                                       <li> Linhas verticais: As linhas azuis no gráfico representam os valores de autocorrelação para diferentes defasagens. Cada ponto no gráfico indica a autocorrelação para uma determinada defasagem.</li>
                                                                       <li> Área entre as linhas pontilhadas azuis: A área sombreada em torno de zero indica o intervalo de confiança para a autocorrelação. Pontos fora desta área podem ser estatisticamente significativos.</li>
-                                                                      </ul>")))
+                                                                      </ul>",
+                                                                      "<br>",
+                                                                      "Abaixo do gráfico encontra-se o valor calculado, utilizando o modelo ARIMA, do valor de ordem do termo de médias móveis.")))
                                             )
                                    ),
                                    tabPanel("Gráfico de Autocorrelação Parcial", icon = icon("chart-line"),
@@ -250,7 +253,7 @@ ui <- fluidPage(
                                               mainPanel(plotOutput("graph_autocorr_parcial"),
                                                         br(), br(),
                                                         verbatimTextOutput("stats_autocorpar"),
-                                                        helpText(HTML("Ao analisar o gráfico de autocorrelação parcial, podem ser procurados cortes abruptos ou quedas significativas, que podem sugerir a ordem do termo de médias móveis (q) no modelo ARIMA.<br>",
+                                                        helpText(HTML("Ao analisar o gráfico de autocorrelação parcial, podem ser procurados cortes abruptos ou quedas significativas, que podem sugerir o número de termos autorregressivos (p) no modelo.<br>",
                                                                       "<br>",
                                                                       "<ul>
                                                                       <li> Eixo X (Defasagem): A defasagem (lag) representa o número de períodos anteriores que estão sendo usados para calcular a correlação com o período atual. Por exemplo, uma defasagem de 1 indica a correlação entre os dados no momento atual e os dados de um período anterior.</li>
@@ -259,7 +262,7 @@ ui <- fluidPage(
                                                                       <li> Área entre as linhas pontilhadas azuis: A área sombreada em torno de zero indica o intervalo de confiança para a autocorrelação. Pontos fora desta área podem ser estatisticamente significativos.</li>
                                                                       </ul>",
                                                                       "<br>",
-                                                                      "Abaixo do gráfico encontra-se o valor calculado, utilizando o modelo ARIMA, do valor de ordem do termo de médias móveis.")))
+                                                                      "Abaixo do gráfico encontra-se o valor calculado, utilizando o modelo ARIMA, do número de termos autorregressivos (p) no modelo.")))
                                             )
                                    ),
                                    tabPanel("Gráfico de Decomposição", icon = icon("chart-line"), 
