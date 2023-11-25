@@ -238,7 +238,8 @@ ui <- fluidPage(
                                                                       <li> Área entre as linhas pontilhadas azuis: A área sombreada em torno de zero indica o intervalo de confiança para a autocorrelação. Pontos fora desta área podem ser estatisticamente significativos.</li>
                                                                       </ul>",
                                                                       "<br>",
-                                                                      "Abaixo do gráfico encontra-se o valor calculado, utilizando o modelo ARIMA, do valor de ordem do termo de médias móveis.")))
+                                                                      "Ao analisar o gráfico de autocorrelação, podem ser procurados cortes abruptos ou quedas significativas, que podem sugerir o valor de ordem do termo de médias móveis no modelo.<br>",
+                                                                      "Abaixo do gráfico encontra-se o valor calculado, utilizando como critério o AIC (Critério de informação de Akaike), da estimativa do valor de ordem do termo de médias móveis (q).")))
                                             )
                                    ),
                                    tabPanel("Gráfico de Autocorrelação Parcial", icon = icon("chart-line"),
@@ -262,7 +263,7 @@ ui <- fluidPage(
                                                                       <li> Área entre as linhas pontilhadas azuis: A área sombreada em torno de zero indica o intervalo de confiança para a autocorrelação. Pontos fora desta área podem ser estatisticamente significativos.</li>
                                                                       </ul>",
                                                                       "<br>",
-                                                                      "Abaixo do gráfico encontra-se o valor calculado, utilizando o modelo ARIMA, do número de termos autorregressivos (p) no modelo.")))
+                                                                      "Abaixo do gráfico encontra-se o valor calculado, utilizando como critério o AIC (Critério de informação de Akaike), da estimativa do número de termos autorregressivos (p) no modelo.")))
                                             )
                                    ),
                                    tabPanel("Gráfico de Decomposição", icon = icon("chart-line"), 
