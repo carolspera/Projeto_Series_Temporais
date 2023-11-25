@@ -595,7 +595,7 @@ server <- function(input, output){
     modelo_auto_arima <- auto.arima(dados$y) # Encontra a ordem do processo de médias móveis
     q_valor <- arimaorder(modelo_auto_arima)[3]
     
-    return(paste("O valor da ordem do termo de médias móveis (q) é:", q_valor))
+    return(paste("A estimativa do valor da ordem do termo de médias móveis (q), calculada utilizando como critério o AIC, é:", q_valor))
   })
   
   output$graph_autocorr_parcial <- renderPlot({
@@ -656,7 +656,7 @@ server <- function(input, output){
     modelo_auto_arima <- auto.arima(dados$y) # Encontra o número de termos autorregressivos (p) no modelo
     p_valor <- arimaorder(modelo_auto_arima)[1]
     
-    return(paste("O número de termos autorregressivos (p) no modelo é:", p_valor))
+    return(paste("A estimativa do número de termos autorregressivos (p) no modelo, calculada utilizando como critério o AIC, é:", p_valor))
   })
   
   output$graph_decomp <- renderPlot({
