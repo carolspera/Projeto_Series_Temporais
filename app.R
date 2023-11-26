@@ -78,6 +78,7 @@ carrega_estacao = function(cod_estacao){
 }
 
 medias_por_ano <- read_csv("medias_por_ano.csv", col_types = cols(...1 = col_skip()))
+medias_por_ano = na.omit(medias_por_ano)
 
 intervalos <- list(
   "Tair_mean..c." = seq(10, 32, by = 2),
