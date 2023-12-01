@@ -316,10 +316,16 @@ ui <- fluidPage(
                         sidebarPanel(width = 3,
                                      selectInput("modelagem_var", h5("Selecione a variável:"), var_nomes$titulo),
                                      selectInput("modelagem_est", h5("Selecione a(s) estação(ões) meteorológica(s)"), cidades_mod$estacao, multiple = TRUE),
-                                     selectInput("modelagem_modelo", h5("Selecione o modelo:"), c("ARMA", "ARIMA", "SARIMA")),
+                                     dateInput("modelagem_data_i", h5("Data de início"), "2013-01-01"),
+                                     dateInput("modelagem_data_f", h5("Data de fim"), "2020-01-01"),
                                      tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
                         ),
-                        mainPanel()
+                        mainPanel(plotOutput("graph_modelagem_preditiva"),
+                                  br(), br(),
+                                  verbatimTextOutput("stats_modelagem_preditiva"),
+                                  helpText("O gráfico mostra ...",tags$br(),
+                                           tags$br(),
+                                           "..."))
                       )        
              ),
              
@@ -768,6 +774,75 @@ server <- function(input, output){
     p_value = 2 * pbinom(min(pos_signs, neg_signs), n2, 0.5)
     return(list(test_statistic = test_statistic, p_value = p_value))
     
+  })
+  
+  
+  ## Modelagem preditiva
+  output$graph_modelagem_preditiva <- renderPlot({
+    estacao = epc(input$modelagem_est)
+    base = carrega_estacao(estacao)
+    variavel = tpv(input$modelagem_var)
+    Data_ini = input$modelagem_data_i
+    Data_fim = input$modelagem_data_f
+    
+    base$months <- yearmonth(base$Date) # Passando pra formato ano/mês
+    filtro <- filter(base, Station_code == toString(estacao) & Date >= toString(Data_ini) & Date <= toString(Data_fim) )
+    dados = tsibble(
+      data = ymd(filtro$Date),
+      y = filtro[[variavel]],
+      index = data
+    )
+    
+    modelo_auto_arima <- auto.arima(dados$y) # Estima automaticamente os parâmetros do modelo ARIMA
+    p <- modelo_auto_arima$arma[1]
+    d <- modelo_auto_arima$arma[2]
+    q <- modelo_auto_arima$arma[3]
+    
+    # Ajusta o modelo ARIMA se tivermos algum componente diferenciado
+    if (d > 0) {
+      melhor_modelo <- Arima(dados$y, order = c(p, d, q), include.mean = TRUE)
+    } else {
+      melhor_modelo <- Arima(dados$y, order = c(p, 0, q), include.mean = TRUE)
+    }
+    
+    previsoes <- forecast(melhor_modelo, h = 500)  # Obtem as previsões do melhor modelo
+    
+    plot(dados$y, type = "l", col = "blue", lty = 1, ylab = "Valores", xlab = "Período", main = "Dados Originais e Previsões do Melhor Modelo")
+    lines(previsoes$mean, col = "red", lty = 2)
+    legend("topright", legend = c("Dados Originais", "Previsões"), col = c("blue", "red"), lty = c(1, 2))
+  })
+  
+  output$stats_modelagem_preditiva <- renderPrint({
+    estacao = epc(input$modelagem_est)
+    base = carrega_estacao(estacao)
+    variavel = tpv(input$modelagem_var)
+    Data_ini = input$modelagem_data_i
+    Data_fim = input$modelagem_data_f
+    
+    base$months <- yearmonth(base$Date) # Passando pra formato ano/mês
+    filtro <- filter(base, Station_code == toString(estacao) & Date >= toString(Data_ini) & Date <= toString(Data_fim) )
+    dados = tsibble(
+      data = ymd(filtro$Date),
+      y = filtro[[variavel]],
+      index = data
+    )
+
+    modelo_auto_arima <- auto.arima(dados$y) # Estima automaticamente os parâmetros do modelo ARIMA
+    p <- modelo_auto_arima$arma[1]
+    d <- modelo_auto_arima$arma[2]
+    q <- modelo_auto_arima$arma[3]
+    
+    # Ajusta o modelo ARIMA se tivermos algum componente diferenciado
+    if (d > 0) {
+      cat("Ajustando modelo ARIMA\n")
+      melhor_modelo <- Arima(dados$y, order = c(p, d, q), include.mean = TRUE)
+    } else {
+      cat("Ajustando modelo ARMA\n")
+      melhor_modelo <- Arima(dados$y, order = c(p, 0, q), include.mean = TRUE)
+    }
+    
+    # Exiba um resumo do melhor modelo
+    #summary(melhor_modelo)
   })
   
   
