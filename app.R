@@ -346,14 +346,17 @@ ui <- fluidPage(
                         tags$b("GitHub dos autores da biblioteca ‘BrazilMet’: "), tags$a(href="https://github.com/FilgueirasR/BrazilMet", "GitHub - FilgueirasR / BrazilMet"),tags$br(),
                         tags$b("Portal do INMET: "), tags$a(href="https://portal.inmet.gov.br/", "Instituto Nacional de Meteorologia (INMET)"),tags$br(),
                         
-                        tags$br(),tags$br(),tags$h4("Autores"),
+                        tags$br(),tags$br(),tags$h4("Professor"),
+                        "Oilson Alberto Gonzatto Junior",tags$br(),
+                        
+                        tags$br(),tags$br(),tags$h4("Equipe Discente"),
                         "Aime Gomes da Nobrega",tags$br(),
                         "Alice Guimarães Perez",tags$br(),
                         "André Dylan Andrade",tags$br(),
                         "Carolina Spera Braga",tags$br(),
                         "Daniel Gregório Chagas",tags$br(),
                         "Matheus Vinicius Barreto de Farias",tags$br(),
-                        "Thaís Parron Alves",tags$br(),
+                        "Thaís Parron Alves",tags$br(),tags$br(),
                         
                         tags$img(src = "usp-university-of-sao-paulo7715.jpg", width = "120px", height = "65px"), tags$img(src = "logo-icmc.png", width = "120px", height = "65px")
                       )
@@ -778,9 +781,9 @@ server <- function(input, output){
     
     data_filtered <- subset(medias_por_ano, Ano == ano)
     m <- data_filtered[[var_nome]]
-
+    
     bins = round(seq(min(m) - sd(m), max(m) + sd(m), by = sd(m)), 2)
-
+    
     pal <- colorBin("YlOrRd", domain = data_filtered$media_variavel, bins = bins)
     labels <- sprintf("<strong>%s</strong><br/>%g anos<sup></sup>",
                       data_filtered$Station, data_filtered$media_variavel) %>% lapply(htmltools::HTML)
