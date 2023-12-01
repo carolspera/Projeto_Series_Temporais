@@ -809,7 +809,7 @@ server <- function(input, output){
     
     plot(dados$y, type = "l", col = "blue", lty = 1, ylab = "Valores", xlab = "Período", main = "Dados Originais e Previsões do Melhor Modelo")
     lines(previsoes$mean, col = "red", lty = 2)
-    legend("topright", legend = c("Dados Originais", "Previsões"), col = c("blue", "red"), lty = c(1, 2))
+    legend("topleft", legend = c("Dados Originais", "Previsões"), col = c("blue", "red"), lty = c(1, 2))
   })
   
   output$stats_modelagem_preditiva <- renderPrint({
