@@ -347,7 +347,7 @@ ui <- fluidPage(
                         tags$b("Portal do INMET: "), tags$a(href="https://portal.inmet.gov.br/", "Instituto Nacional de Meteorologia (INMET)"),tags$br(),
                         
                         tags$br(),tags$br(),tags$h4("Professor"),
-                        "Oilson Alberto Gonzatto Junior",tags$br(),
+                        "Oilson Alberto Gonzatto Junior",
                         
                         tags$br(),tags$br(),tags$h4("Equipe Discente"),
                         "Aime Gomes da Nobrega",tags$br(),
