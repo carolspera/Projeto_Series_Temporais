@@ -31,6 +31,10 @@ library(imputeTS) # biblioteca que faz a interpolação das observações
 # Leitura dos dados
 est_nomes <- read.csv("nomes_codigos_estacoes.csv", sep=",", header = TRUE)
 cidades <- read.csv("CatalogoEstaçõesAutomáticas.csv", sep=";", header = TRUE)
+extremos_max <- read.csv("extremos_max.csv", sep=",", header = TRUE)
+extremos_min <- read.csv("extremos_min.csv", sep=",", header = TRUE)
+extremos_max_index <- read.csv("extremos_max_index.csv", sep=",", header = TRUE)
+extremos_min_index <- read.csv("extremos_min_index.csv", sep=",", header = TRUE)
 
 # Criando uma coluna com o nome da cidade e estado
 cidades_mod <- data.frame(coluna1 = cidades$DC_NOME,coluna2 = cidades$SG_ESTADO, codigo = cidades$CD_ESTACAO)
@@ -330,10 +334,22 @@ ui <- fluidPage(
                                                                       <li> Entre -0,3 e 0,3: Ausência de correlação. </li>
                                                                       </ul>")))
                                             )
+                                   ),
+                                   tabPanel("Eventos extremos", icon = icon("chart-line"),
+                                            sidebarLayout(
+                                              sidebarPanel(width = 3,
+                                                           selectInput("extr_var", h5("Selecione a variável:"), var_nomes$titulo),
+                                                           checkboxInput("extr_bool", h5("Selecionar todas estações"), FALSE),
+                                                           selectInput("extr_est", h5("Selecione a estação:"), est_nomes$estacao),
+                                                           selectInput("extr_periodo", h5("Selecione o número de dias do período:"), choices = c(1,3,7,14,28,90)),
+                                                           tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
+                                              ),
+                                              mainPanel(verbatimTextOutput("extr_stats"))
+                                            )
                                    )
                       )
              ),
-             
+
              ## Modelagem preditiva
              tabPanel("Modelagem preditiva",
                       navlistPanel(widths=c(2, 10),
@@ -872,6 +888,39 @@ server <- function(input, output){
     cat("Intervalo de confiança: (", round(corr$conf.int[1],4),",", round(corr$conf.int[2],4),")","\n",sep = "")
   })
   
+  output$extr_stats <- renderPrint({
+    variavel = tpv(input$extr_var)
+    all_stations = input$extr_bool
+    estacao = epc(input$extr_est)
+    periodo = as.numeric(input$extr_periodo)
+    
+    if(all_stations){
+      dados_min <- filter(extremos_min, period == periodo)
+      index <- which.min(dados_min[[variavel]])
+      station_min <- dados_min$Station_code[index]
+      
+      dados_max <- filter(extremos_max, period == periodo)
+      index <- which.max(dados_max[[variavel]])
+      station_max <- dados_max$Station_code[index]
+    } else {
+      station_min <- estacao
+      station_max <- estacao
+    }
+    
+    dados_min <- filter(extremos_min_index, period == periodo & Station_code == station_min)
+    dados_max <- filter(extremos_max_index, period == periodo & Station_code == station_max)
+    valor_min <- filter(extremos_min, period == periodo & Station_code == station_min)
+    valor_max <- filter(extremos_max, period == periodo & Station_code == station_max)
+    
+    data_fim_min <- dados_min[[variavel]]
+    data_fim_max <- dados_max[[variavel]]
+    data_inicio_min <- as.character(as.Date(data_fim_min) - periodo + 1)
+    data_inicio_max <- as.character(as.Date(data_fim_max) - periodo + 1)
+    
+    cat("\nPara variável ",vpt(variavel),", os eventos extremos foram os seguintes:",sep = "")
+    cat("\n\nMínimo:\n\nPeríodo: entre ",data_inicio_min," e ",data_fim_min,"\nEstação: ",cpe(station_min),"\nMédia da variável no período: ",valor_min[[variavel]],sep = "")
+    cat("\n\nMáximo:\n\nPeríodo: entre ",data_inicio_max," e ",data_fim_max,"\nEstação: ",cpe(station_max),"\nMédia da variável no período: ",valor_max[[variavel]],sep = "")
+  }) 
   
   
   ## Modelagem preditiva
