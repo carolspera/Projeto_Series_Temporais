@@ -31,7 +31,6 @@ library(imputeTS) # biblioteca que faz a interpolação das observações
 
 # Leitura dos dados
 est_nomes <- read.csv("nomes_codigos_estacoes.csv", sep=",", header = TRUE)
-
 cidades <- read.csv("CatalogoEstaçõesAutomáticas.csv", sep=";", header = TRUE)
 
 # Criando uma coluna com o nome da cidade e estado
@@ -306,6 +305,31 @@ ui <- fluidPage(
                                                         helpText("O gráfico mostra a série temporal ajustada, que é a série original após a remoção da componente sazonal. Isso ajuda a visualizar os padrões de variação que não são explicados pela sazonalidade. Por exemplo, se houver uma tendência de longo prazo ou padrões de curto prazo, eles serão mais visíveis na série ajustada.",tags$br(),
                                                                  tags$br(),
                                                                  "O teste de Cox-Stuart é uma ferramenta estatística utilizada para verificar se existe uma tendência significativa em uma série temporal. Ele avalia se há uma mudança sistemática na direção dos valores ao longo do tempo. A estatística de teste é comparada a uma distribuição de probabilidade para determinar se a tendência é estatisticamente significativa. O valor-p indica a probabilidade de observar uma estatística de teste tão extrema quanto a observada, se não houver tendência na série. Se o valor-p for pequeno (geralmente abaixo de 0.05), podemos rejeitar a hipótese nula de ausência de tendência."))
+                                            )
+                                   ),
+                                   tabPanel("Correlação entre variáveis", icon = icon("chart-line"),
+                                            sidebarLayout(
+                                              sidebarPanel(width = 3,
+                                                           selectInput("corr_var1", h5("Selecione a variável:"), var_nomes$titulo),
+                                                           selectInput("corr_var2", h5("Selecione a variável:"), var_nomes$titulo),
+                                                           selectInput("corr_est", h5("Selecione a estação:"), est_nomes$estacao),
+                                                           dateInput("corr_data_i", h5("Data de início:"), "2013-01-01"),
+                                                           dateInput("corr_data_f", h5("Data de fim:"), "2020-01-01"),
+                                                           tags$div(id = "cite", h6('Dados retirados do portal INMET.'))
+                                              ),
+                                              mainPanel(plotOutput("graph_corr"),
+                                                        br(), br(),
+                                                        verbatimTextOutput("corr_stats"),
+                                                        helpText("Um modelo linear simples busca explicar a relação linear entre duas variáveis. Valor-p menor do que 0,05 para o coeficiente angular indica que a relação entre as variáveis. Podemos interpretar os coeficientes da seguinte forma: imagine que o coeficiente do intercepto é 10 e o coeficiente angular é 0,5; então, quando a primeira variável escolhida for 15, a segunda variável será em média 17,5 (= 10 + 15 * 0,5).", tags$br(),
+                                                                 tags$br(),       
+                                                                 HTML("O coeficiente de correlação de Pearson analisa a relação linear entre duas variáveis, apresentando valores no intervalo de -1 a 1. Valores negativos indicam uma associação negativa, ou seja, quando uma variável aumenta, a outra diminui. Por outro lado, valores positivos sugerem uma associação positiva, indicando que quando uma variável cresce, a outra também cresce. Existem interpretações comuns para os valores do coeficiente de correlação de Pearson:<br>",
+                                                                      "<ul>
+                                                                      <li> Maior que 0,9 ou menor que -0,9: Correlação muito forte; </li>
+                                                                      <li> Maior que 0,7 ou menor que -0,7: Correlação forte; </li>
+                                                                      <li> Maior que 0,5 ou menor que -0,5: Correlação média; </li>
+                                                                      <li> Maior que 0,3 ou menor que -0,3: Correlação fraca; </li>
+                                                                      <li> Entre -0,3 e 0,3: Ausência de correlação. </li>
+                                                                      </ul>")))
                                             )
                                    )
                       )
@@ -799,6 +823,56 @@ server <- function(input, output){
     
   })
   
+  output$graph_corr <- renderPlot({
+    estacao = epc(input$corr_est)
+    base = carrega_estacao(estacao)
+    variavel1 = tpv(input$corr_var1)
+    variavel2 = tpv(input$corr_var2)
+    Data_ini = input$corr_data_i
+    Data_fim = input$corr_data_f
+    
+    filtro <- filter(base, Date >= toString(Data_ini) & Date <= toString(Data_fim) )
+    x1 = filtro[[variavel1]]
+    y1 = filtro[[variavel2]]
+    
+    corr = ggplot(filtro, aes(x = x1, y = y1)) +
+      geom_smooth(method = "lm", color = "blue") +
+      geom_point() + 
+      labs(
+        y = vpt(variavel2), 
+        x = vpt(variavel1), 
+        title = paste("Gráfico de dispersão e modelo linear entre as variáveis")) + 
+      theme_minimal()
+    plot(corr)
+})
+  
+  output$corr_stats <- renderPrint({
+    estacao = epc(input$corr_est)
+    base = carrega_estacao(estacao)
+    variavel1 = tpv(input$corr_var1)
+    variavel2 = tpv(input$corr_var2)
+    Data_ini = input$corr_data_i
+    Data_fim = input$corr_data_f
+    
+    filtro <- filter(base, Date >= toString(Data_ini) & Date <= toString(Data_fim) )
+    x1 = filtro[[variavel1]]
+    y1 = filtro[[variavel2]]
+    
+    modelo_linear <- lm(y1 ~ x1, data = filtro)
+    vp_inter <- as.numeric(summary(modelo_linear)$coefficients[, "Pr(>|t|)"][1])
+    vp_coef_ang <- as.numeric(summary(modelo_linear)$coefficients[, "Pr(>|t|)"][2])
+  
+    cat("Coeficientes do modelo linear ajustado (valor-p):\n \n")
+    cat("Intercepto: ", round(as.numeric(coef(modelo_linear)[1]), 4)," (",round(vp_inter,4),")","\n",sep = "")
+    cat("Coeficiente angular: ", round(as.numeric(coef(modelo_linear)[2]), 4)," (",round(vp_coef_ang,4),")","\n",sep = "")
+    
+    cat("\n")
+    cat("Coeficiente de correlação de Pearson:\n")
+    cat("Estimativa pontual: ", round(corr$estimate,4),"\n",sep = "")
+    cat("Intervalo de confiança: (", round(corr$conf.int[1],4),",", round(corr$conf.int[2],4),")","\n",sep = "")
+  })
+  
+ 
   
   ## Modelagem preditiva
   # Predição mensal
