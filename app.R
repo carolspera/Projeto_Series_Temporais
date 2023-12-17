@@ -27,7 +27,6 @@ library(zoo)
 library(readr)
 library(imputeTS) # biblioteca que faz a interpolação das observações
 
-
 # Leitura dos dados
 est_nomes <- read.csv("nomes_codigos_estacoes.csv", sep=",", header = TRUE)
 cidades <- read.csv("CatalogoEstaçõesAutomáticas.csv", sep=";", header = TRUE)
@@ -1119,7 +1118,6 @@ server <- function(input, output){
       cat("Não rejeitamos a hipótese nula - os resíduos parecem seguir uma distribuição normal.\n")
     }
   })
-  
   
   ## Análise geográfica
   output$map <- renderLeaflet({
