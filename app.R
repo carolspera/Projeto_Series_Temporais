@@ -866,6 +866,8 @@ server <- function(input, output){
     cat("Intercepto: ", round(as.numeric(coef(modelo_linear)[1]), 4)," (",round(vp_inter,4),")","\n",sep = "")
     cat("Coeficiente angular: ", round(as.numeric(coef(modelo_linear)[2]), 4)," (",round(vp_coef_ang,4),")","\n",sep = "")
     
+    corr = cor.test(x1,y1)
+    
     cat("\n")
     cat("Coeficiente de correlação de Pearson:\n")
     cat("Estimativa pontual: ", round(corr$estimate,4),"\n",sep = "")
